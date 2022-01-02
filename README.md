@@ -1,8 +1,5 @@
-# graybot-app-private
+# deribit-backtester-ws-server
 
-graybot app private
+takes websocket messages sent from graybot-app-public
 
-https://pretagteam.com/question/running-multiple-python-scripts-simultaneously-and-then-sequentially
-
-In bash/terminal:
-python backtester.py && python bollingerGen.py
+sends back .json files for parsing by graybot-app-public into SQL tables (eventually)
