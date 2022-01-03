@@ -359,6 +359,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # plt.legend()  
     # plt.show()
     
+    length = len(df.index)
     last_index = len(df.index) - 1
     # print(last_index)
     ROI = df['cumret'].iloc[last_index]
@@ -374,7 +375,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # plt.axis('tight')
     # plt.ylabel('Price')
     
-    return [front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf, ROI,lookback, std_dev, front_vector, middle_vector, back_vector]
+    return [front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf, ROI, length, lookback, std_dev, front_vector, middle_vector, back_vector]
 
 timeframes = ["15", "30", "60", "120", "180", "360", "720", "1D"]
 

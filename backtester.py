@@ -64,18 +64,18 @@ def dataframe_builder(sym, tf, since_day):
   # https://pypi.org/project/websocket-client/
   ws = create_connection('wss://www.deribit.com/ws/api/v2/')
 
-  print(f'Sending JSON message to get chart data for {sym} {tf}...')
+#   print(f'Sending JSON message to get chart data for {sym} {tf}...')
   ws.send(json.dumps(msg))
-  print("Sent!")
+#   print("Sent!")
   time.sleep(2)
-  print(f'Receiving message data for {sym} {tf}...')
+#   print(f'Receiving message data for {sym} {tf}...')
 
   raw_result =  ws.recv()
   message = json.loads(raw_result)
-  print(message.keys())
+#   print(message.keys())
   
   if 'result' in message.keys():
-    print('successful DF data message, compiling into single df...')
+    # print('successful DF data message, compiling into single df...')
     # print(message["result"].keys())
     result_keys = message["result"]
 
@@ -92,10 +92,10 @@ def dataframe_builder(sym, tf, since_day):
     #   print(df.head())
 
     df.rename(columns = {"close": sym}, inplace= True)
-    print(df.head())
-    print(f'single {sym} {tf} chart is length {len(df)}')
+    # print(df.head())
+    # print(f'single {sym} {tf} chart is length {len(df)}')
 
-    print(type(df))
+    # print(type(df))
     return df
 
   if 'error' in message.keys(): #turn into Asyn
@@ -123,11 +123,11 @@ def triple_df_builder(front_leg_instrument, middle_leg_instrument, back_leg_inst
         # print(f'length of dataframe is {len(df)}')
         return df
     except:
-        print('one of the legs are not process')
+        print('one of the legs are not processed')
         pass
 
 def johansen_test(df):
-    print('running Johansen test...')
+    # print('running Johansen test...')
     register_matplotlib_converters()
 
     # For checking cointegration
@@ -140,16 +140,16 @@ def johansen_test(df):
     result = coint_johansen(df, 0, 1)
 
     # Print trace statistics and eigen statistics
-    print ('--------------------------------------------------')
-    print ('--> Trace Statistics')
-    print ('variable statistic Crit-90% Crit-95%  Crit-99%')
-    for i in range(len(result.lr1)):
-        print ("r <= " + str(i), round(result.lr1[i], 4), round(result.cvt[i, 0],4), round(result.cvt[i, 1],4), round(result.cvt[i, 2],4))
-    print ('--------------------------------------------------')
-    print ('--> Eigen Statistics')
-    print ('variable statistic Crit-90% Crit-95%  Crit-99%')
-    for i in range(len(result.lr2)):
-        print ("r <= " + str(i), round(result.lr2[i], 4), round(result.cvm[i, 0],4), round(result.cvm[i, 1],4), round(result.cvm[i, 2],4))
+    # print ('--------------------------------------------------')
+    # print ('--> Trace Statistics')
+    # print ('variable statistic Crit-90% Crit-95%  Crit-99%')
+    # for i in range(len(result.lr1)):
+    #     print ("r <= " + str(i), round(result.lr1[i], 4), round(result.cvt[i, 0],4), round(result.cvt[i, 1],4), round(result.cvt[i, 2],4))
+    # print ('--------------------------------------------------')
+    # print ('--> Eigen Statistics')
+    # print ('variable statistic Crit-90% Crit-95%  Crit-99%')
+    # for i in range(len(result.lr2)):
+    #     print ("r <= " + str(i), round(result.lr2[i], 4), round(result.cvm[i, 0],4), round(result.cvm[i, 1],4), round(result.cvm[i, 2],4))
 
     #Print half-life, or time taken for data to revert to mean
     theta = result.eig[0]
@@ -177,12 +177,12 @@ def johansen_test(df):
     back_vector = round(ev[2],2)
 
     # Print the mean reverting spread
-    print(f"\nCurrent Cointegrated Spread for {tf}= {front_vector}*{front_leg_instrument} + ({middle_vector})*{middle_leg_instrument} + ({back_vector})*{back_leg_instrument}")
-    print(f"Johansen test performed on {df.index[-1]}")
+    # print(f"\nCurrent Cointegrated Spread for {tf}= {front_vector}*{front_leg_instrument} + ({middle_vector})*{middle_leg_instrument} + ({back_vector})*{back_leg_instrument}")
+    # print(f"Johansen test performed on {df.index[-1]}")
     return [front_vector, middle_vector, back_vector]
 
 def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookback, std_dev, sl_flag, sl_std_dev, one_way_fee):
-    print('running new butterfly sl backtester...')    
+    # print('running new butterfly sl backtester...')    
     df['spread'] = df[front_leg_instrument]*front_vector + df[middle_leg_instrument]*middle_vector + df[back_leg_instrument]*back_vector
 
     # requires x and y plotting to be done in numpy arrays
@@ -278,7 +278,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # Calculate cumulative strategy returns
     df['cumret'] = ((df.net_strategy_returns+1)).cumprod()
 
-    print("{0}, {1}, {2} Butterfly Returns with Timeframe {3}, Lookback {4}, Std Deviation {5}".format(front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf,lookback, std_dev ))
+    # print("{0}, {1}, {2} Butterfly Returns with Timeframe {3}, Lookback {4}, Std Deviation {5}".format(front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf,lookback, std_dev ))
     
     #PLOTTING NOT COMPATIBLE WITH .PY SCRIPT IN TERMINAL
     # df.cumret.plot(figsize=(10,5))
@@ -288,13 +288,14 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # plt.legend()  
     # plt.show()
     
+    length = len(df.index)
     last_index = len(df.index) - 1
     # print(last_index)
     ROI = df['cumret'].iloc[last_index]
     ROI = ROI.item()
 
-    print(f'ROI is {df["cumret"].iloc[last_index]} for {tf}')
-    print(f'length of {tf} dataframe is {len(df)}')
+    # print(f'ROI is {df["cumret"].iloc[last_index]} for {tf}')
+    # print(f'length of {tf} dataframe is {len(df)}')
     
     #PLOTTING NOT COMPATIBLE WITH .PY SCRIPT IN TERMINAL
     # df[['spread','moving_average',"lower_band",'upper_band']].plot(figsize=(10,4))
@@ -303,9 +304,44 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # plt.axis('tight')
     # plt.ylabel('Price')
     
-    return [front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf, ROI,lookback, std_dev, front_vector, middle_vector, back_vector]
+    output_string = [{
+        "front_leg": front_leg_instrument, 
+        "middle_leg": middle_leg_instrument, 
+        "back_leg" : back_leg_instrument, 
+        "tf": tf, 
+        "ROI": ROI,
+        "length": length,
+        "lookback": lookback,
+        "std_dev": std_dev,
+        "front_vector": front_vector,
+        "middle_vector": middle_vector,
+        "back_vector": back_vector,
+    }]
 
-sys.stdout.write(json.dumps(entered_params))
+    json_df = df.to_json (orient="columns")
+
+    return [output_string, json_df]
+
+# get df
+df = triple_df_builder(front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf)
+
+# get vectors
+vectors = johansen_test(df)
+# print('printing all vectors...')
+print(vectors)
+front_vector = vectors[0]
+middle_vector = vectors[1]
+back_vector = vectors[2]
+
+single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
+
+# get output string
+
+
+# dataframe to json
+# https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
+
+sys.stdout.write(single_result)
 
 # exportable_df = tuple_returned[1]
 
