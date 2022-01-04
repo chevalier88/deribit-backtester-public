@@ -6,18 +6,25 @@ from datetime import datetime
 import ccxt 
 from config_py_files import config
 
-import websocket
-from websocket import create_connection
-
 import numpy as np
 import math
 from pandas.plotting import register_matplotlib_converters
 from johansen import coint_johansen
 import warnings
 
-entered_object = json.loads(sys.argv[1])
+# df_object = json.loads(sys.argv[1])
+df_object = pd.read_json("./test.json")
 
-print(entered_object)
+
+print('printing df_object...')
+print(type(df_object))
+print(df_object.head())
+print(df_object.columns)
+
+print(df_object.iloc[0])
+
+first_df = df_object.iloc[0]
+print(first_df.T)
 
 def johansen_test(df):
     # print('running Johansen test...')
@@ -216,14 +223,14 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
 
 
 # get vectors
-vectors = johansen_test(df)
-# print('printing all vectors...')
-print(vectors)
-front_vector = vectors[0]
-middle_vector = vectors[1]
-back_vector = vectors[2]
+# vectors = johansen_test(df)
+# # print('printing all vectors...')
+# print(vectors)
+# front_vector = vectors[0]
+# middle_vector = vectors[1]
+# back_vector = vectors[2]
 
-single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
+# single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
 
 # get output string
 
@@ -231,7 +238,7 @@ single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_ve
 # dataframe to json
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
 
-sys.stdout.write(single_result)
+# sys.stdout.write(str(df_object[0]))
 
 # exportable_df = tuple_returned[1]
 

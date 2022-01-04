@@ -53,20 +53,6 @@ const frontLeg = "ETH-30SEP22"
 const midLeg = "ETH-24JUN22"
 const backLeg = "ETH-PERPETUAL"
 
-// open the websocket to Deribit
-ws.onopen = function () {
-  console.log("opening deribit websocket connection...")
-  console.log("sending chart messages..")
-
-  let frontLegMsg = chartMsg(frontLeg, 100);
-  let midLegMsg = chartMsg(midLeg, 200);
-  let backLegMsg = chartMsg(backLeg, 300);
-
-  ws.send(JSON.stringify(frontLegMsg));
-  ws.send(JSON.stringify(midLegMsg));
-  ws.send(JSON.stringify(backLegMsg));
-};
-
 ws.onmessage = function (e) {
   console.log("receiving message...")
   const message = JSON.parse(e.data);
@@ -108,8 +94,35 @@ ws.onmessage = function (e) {
     console.error('websocket error')
   }
 
-  console.log(typeof(tripleDataframeArray));
+  console.log(Object.keys(tripleDataframeArray));
+  if (Object.keys(tripleDataframeArray).length === 3){
+    console.log(`print first item in Array`)
+    console.log(tripleDataframeArray[0])
+    fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
+    if (err) {
+        throw err;
+    }
+    console.log("JSON data is saved.");
+});
+  }
 }
+
+// open the websocket to Deribit
+ws.onopen = function () {
+  console.log("opening deribit websocket connection...")
+  console.log("sending chart messages..")
+
+  let frontLegMsg = chartMsg(frontLeg, 100);
+  let midLegMsg = chartMsg(midLeg, 200);
+  let backLegMsg = chartMsg(backLeg, 300);
+
+  ws.send(JSON.stringify(frontLegMsg));
+  ws.send(JSON.stringify(midLegMsg));
+  ws.send(JSON.stringify(backLegMsg));
+};
+
+
+
 
 // when a websocket connection is established
 websocketServer.on('connection', (webSocketClient) => {
@@ -125,15 +138,15 @@ websocketServer.on('connection', (webSocketClient) => {
       .clients
       .forEach((client) => {
         // send the client the current message
-        const childPython = spawn('python', ['backtester.py', tripleDataframeArray]);
+        const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
         childPython.stdout.on('data', (data) => {
           console.log('stdout output:\n');
-          // console.log(data.toString());
-          const pythonObject = JSON.parse(data);
-          // client.send(pythonObject);
-          console.log(`receiving an ${typeof (pythonObject)} from backtester.py...`);
-          console.log(pythonObject);
-          client.send(data.toString());
+          console.log(data.toString());
+          // const pythonObject = JSON.parse(data);
+          // // client.send(pythonObject);
+          // console.log(`receiving an ${typeof (pythonObject)} from backtester.py...`);
+          // console.log(pythonObject);
+          // client.send(data.toString());
         });
         childPython.stderr.on('data', (data) => {
           console.error(`stderr error: ${data.toString()}`);
