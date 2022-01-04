@@ -1,4 +1,5 @@
 import json, sys
+from os import close
 sys.path.append(".")
 import pandas as pd
 import time
@@ -17,14 +18,59 @@ df_object = pd.read_json("./test.json")
 
 
 print('printing df_object...')
-print(type(df_object))
 print(df_object.head())
 print(df_object.columns)
 
-print(df_object.iloc[0])
+# print(df_object.iloc[0])
 
-first_df = df_object.iloc[0]
-print(first_df.T)
+front_leg_instrument = df_object.iloc[0]["leg"]
+middle_leg_instrument = df_object.iloc[1]["leg"]
+back_leg_instrument = df_object.iloc[2]["leg"]
+
+print(f'front_leg_instrument = {front_leg_instrument}')
+
+# tick_index = first_df["ticks"]
+# close_price = first_df["close"]
+# leg_name = first_df["leg"]
+
+# temp_dict = {'ticks': tick_index, leg_name: close_price}
+
+# converted_first_df = pd.DataFrame(temp_dict)
+# converted_first_df.set_index('ticks', inplace= True)
+# print(converted_first_df.head())
+# print(f'length: {len(converted_first_df.index)}')
+
+def json_df_converter(df_object, object_index):
+    raw_df = df_object.iloc[object_index]
+    tick_index = raw_df["ticks"]
+    close_price = raw_df["close"]
+    leg_name = raw_df["leg"]
+
+    temp_dict = {'ticks': tick_index, leg_name: close_price}
+    converted_df = pd.DataFrame(temp_dict)
+    converted_df.set_index('ticks', inplace= True)
+    return converted_df
+
+def triple_df_builder(df_object):
+    #get leg 1
+    try:
+        df_front_leg = json_df_converter(df_object, 0)
+
+        df_middle_leg = json_df_converter(df_object, 1)
+
+        df_back_leg = json_df_converter(df_object, 2)
+
+        df = pd.concat([df_front_leg, df_middle_leg, df_back_leg], axis=1)
+        
+        #some contracts commence earlier than the others so we want to have the 3 instruments overlap 
+        #for the butterfly spread to work
+        df.dropna(inplace = True)
+
+        # print(f'length of dataframe is {len(df)}')
+        return df
+    except:
+        print('one of the legs are not process')
+        pass
 
 def johansen_test(df):
     # print('running Johansen test...')
@@ -219,19 +265,20 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     }]
 
 
-    return output_string
+    return [output_string, df]
 
-
+df = triple_df_builder(df_object)
 # get vectors
-# vectors = johansen_test(df)
-# # print('printing all vectors...')
-# print(vectors)
-# front_vector = vectors[0]
-# middle_vector = vectors[1]
-# back_vector = vectors[2]
+vectors = johansen_test(df)
+# print('printing all vectors...')
+print(vectors)
+front_vector = vectors[0]
+middle_vector = vectors[1]
+back_vector = vectors[2]
 
-# single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
+single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
 
+print(single_result[0])
 # get output string
 
 

@@ -24,6 +24,7 @@ function toTimestamp(year, month, day) {
   return datum.getTime();
 }
 
+const tf = "30";
 // build constants to get
 const sinceDay = toTimestamp(2021, 6, 1);
 const now = Date.now();
@@ -43,7 +44,7 @@ function chartMsg(leg, id){
       "instrument_name" : leg,
       "start_timestamp" : sinceDay,
       "end_timestamp" : now,
-      "resolution" : "30"
+      "resolution" : tf
     }
   };
 } 
@@ -98,6 +99,7 @@ ws.onmessage = function (e) {
   if (Object.keys(tripleDataframeArray).length === 3){
     console.log(`print first item in Array`)
     console.log(tripleDataframeArray[0])
+    tripleDataframeArray.push(tf)
     fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
     if (err) {
         throw err;
