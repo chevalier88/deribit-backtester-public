@@ -4,8 +4,6 @@ sys.path.append(".")
 import pandas as pd
 import time
 from datetime import datetime
-import ccxt 
-from config_py_files import config
 
 import numpy as np
 import math
@@ -23,10 +21,12 @@ df_object = pd.read_json(sys.argv[1])
 
 # print(df_object.iloc[0])
 
+now = datetime.now().strftime(("%d_%m_%Y_%H_%M_%S"))
+
 front_leg_instrument = df_object.iloc[0]["leg"]
 middle_leg_instrument = df_object.iloc[1]["leg"]
 back_leg_instrument = df_object.iloc[2]["leg"]
-tf = df_object.iloc[3]["tf"]
+tf = int(df_object.iloc[3]["tf"])
 
 # print(f'tf is {tf}')
 # print(f'front_leg_instrument = {front_leg_instrument}')
@@ -264,10 +264,11 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "front_vector": front_vector,
         "middle_vector": middle_vector,
         "back_vector": back_vector,
+        "backtest_timestamp": f'{now}_TF{tf}',
     }
     # print(df.head())
-    # df_json = df.to_json()
-    return output_string
+
+    return [output_string, df]
     # return df_json
 
 df = triple_df_builder(df_object)
@@ -281,15 +282,36 @@ back_vector = vectors[2]
 
 single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
 
-# print(single_result[0])
-# get output string
+# get length of dataframe
 
+select_df = single_result[1]
+exportable_df = select_df["cumret"]
+df_length = len(exportable_df.index)
+# print(df_length)
+
+#to reduce size, only select every nth row to achieve 100 rows only
+# based on https://stackoverflow.com/questions/25055712/pandas-every-nth-row 
+nth_factor = int(df_length/100)-1
+# print(nth_factor)
+
+df = exportable_df.iloc[::nth_factor]
+
+json_df = df.to_json(f'./data/{now}_{tf}_running.json', orient = 'columns')
+# df.to_csv(f'./data/{now}_{tf}_running.csv')
+
+# trying ot read exported json file for sys.stdout.write sending
+# https://www.geeksforgeeks.org/read-json-file-using-python/
+# f = open(f"./data/{now}_{tf}_running.json")
+# print(json_df)
+# json_df = json.load(f)
+
+# get output string
+# print(single_result[0])
+sys.stdout.write(json.dumps(single_result[0]))
 
 # dataframe to json
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
+# json_df = single_result[1].to_json(orient = "columns")
+# print(str(json_df))
 
-sys.stdout.write(json.dumps(single_result))
-
-# exportable_df = tuple_returned[1]
-
-# exportable_df.to_csv(f'./data/{test_timestamp}_{tf}_running.csv')
+# sys.stdout.write(json.dumps(json_df))

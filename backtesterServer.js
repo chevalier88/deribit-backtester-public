@@ -150,13 +150,14 @@ websocketServer.on('connection', (webSocketClient) => {
         const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
         childPython.stdout.on('data', (data) => {
           console.log('stdout output:\n');
-          // console.log(data.toString());
-          // const pythonObject = JSON.parse(data);
           const dataObject = data.toString()
+          console.log(JSON.parse(dataObject)); //works for output_string, not json df
+          // client.send(JSON.parse(dataObject));
+          // console.log(JSON.parse(data))
+          // const pythonObject = JSON.parse(data);
+          // console.log(pythonObject);
           // client.send(pythonObject);
           // console.log(`receiving an ${typeof (pythonObject)} from backtester.py...`);
-          console.log(JSON.parse(dataObject));
-          client.send(dataObject);
         });
         childPython.stderr.on('data', (data) => {
           console.error(`stderr error: ${data.toString()}`);
