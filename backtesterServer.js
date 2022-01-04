@@ -33,6 +33,7 @@ console.log(`sinceDay: ${sinceDay}, now: ${now}`);
 // instantiate empty array to append/push json results to
 const tripleDataframeArray = [];
 
+// function to send messages for chart data
 function chartMsg(leg){
   return {
     "jsonrpc" : "2.0",
