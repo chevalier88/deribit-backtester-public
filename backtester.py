@@ -15,116 +15,9 @@ from pandas.plotting import register_matplotlib_converters
 from johansen import coint_johansen
 import warnings
 
-entered_params = json.loads(sys.argv[1])
-# print(coin_params)
-# print(type(entered_params))
-# print(coin_params.keys())
-# instantiate inputted params for this test, from a form
+entered_object = json.loads(sys.argv[1])
 
-params = entered_params["params"]
-
-since_day_input = params["since_day_input"]
-front_leg_instrument = params["front_leg"]
-middle_leg_instrument = params["mid_leg"]
-back_leg_instrument = params["back_leg"]
-tf = params["tf"]
-
-# print(back_leg)
-# will backtest all timeframes for this combi of legs. 
-
-# instantiate other constants for this test
-unix_now = int(time.time())*1000
-lookback = 20
-sl_std_dev = 1 #default is 1 standard deviation below and above bands
-
-# standard code for the since day
-if since_day_input == "default":
-    since_day = '2021-06-01_00_00'
-else: 
-    since_day = since_day_input
-
-# single dataframe builder
-def dataframe_builder(sym, tf, since_day):
-  since = round(datetime.strptime(str(since_day), '%Y-%m-%d_%H_%M').timestamp()*1000)
-
-  msg = \
-  {
-    "jsonrpc" : "2.0",
-    "id" : 833,
-    "method" : "public/get_tradingview_chart_data",
-    "params" : {
-      "instrument_name" : sym,
-      "start_timestamp" : since,
-      "end_timestamp" : unix_now,
-      "resolution" : tf
-    }
-  }
-
-  # 'short-term' websocket connection to avoid ccxt, straight to mainnet
-  # https://pypi.org/project/websocket-client/
-  ws = create_connection('wss://www.deribit.com/ws/api/v2/')
-
-#   print(f'Sending JSON message to get chart data for {sym} {tf}...')
-  ws.send(json.dumps(msg))
-#   print("Sent!")
-  time.sleep(2)
-#   print(f'Receiving message data for {sym} {tf}...')
-
-  raw_result =  ws.recv()
-  message = json.loads(raw_result)
-#   print(message.keys())
-  
-  if 'result' in message.keys():
-    # print('successful DF data message, compiling into single df...')
-    # print(message["result"].keys())
-    result_keys = message["result"]
-
-    df = pd.DataFrame(result_keys, columns = ['volume', 'ticks', 'status', 'open', 'low', 'high', 'cost', 'close'])
-    
-    # print(df.head())
-
-    ws.close()
-
-    df.set_index('ticks', inplace=True)
-    df = df[["close"]]
-
-    #   print('checking out final df appearance...')
-    #   print(df.head())
-
-    df.rename(columns = {"close": sym}, inplace= True)
-    # print(df.head())
-    # print(f'single {sym} {tf} chart is length {len(df)}')
-
-    # print(type(df))
-    return df
-
-  if 'error' in message.keys(): #turn into Asyn
-    error_message = message['error']['message']
-    error_code = message['error']['code']
-    print('You have received an ERROR MESSAGE: {} with the ERROR CODE: {}'.format(error_message, error_code))
-    print(message)
-    pass  
-
-def triple_df_builder(front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf):
-    #get leg 1
-    try:
-        df_front_leg = dataframe_builder(front_leg_instrument, tf, since_day)
-
-        df_middle_leg = dataframe_builder(middle_leg_instrument, tf, since_day)
-
-        df_back_leg = dataframe_builder(back_leg_instrument, tf, since_day)
-
-        df = pd.concat([df_front_leg, df_middle_leg, df_back_leg], axis=1)
-        
-        #some contracts commence earlier than the others so we want to have the 3 instruments overlap 
-        #for the butterfly spread to work
-        df.dropna(inplace = True)
-
-        # print(f'length of dataframe is {len(df)}')
-        return df
-    except:
-        print('one of the legs are not processed')
-        pass
+print(entered_object)
 
 def johansen_test(df):
     # print('running Johansen test...')
@@ -318,12 +211,9 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "back_vector": back_vector,
     }]
 
-    json_df = df.to_json (orient="columns")
 
-    return [output_string, json_df]
+    return output_string
 
-# get df
-df = triple_df_builder(front_leg_instrument, middle_leg_instrument, back_leg_instrument, tf)
 
 # get vectors
 vectors = johansen_test(df)

@@ -57,9 +57,11 @@ const backLeg = "ETH-PERPETUAL"
 ws.onopen = function () {
   console.log("opening deribit websocket connection...")
   console.log("sending chart messages..")
+
   let frontLegMsg = chartMsg(frontLeg, 100);
   let midLegMsg = chartMsg(midLeg, 200);
   let backLegMsg = chartMsg(backLeg, 300);
+
   ws.send(JSON.stringify(frontLegMsg));
   ws.send(JSON.stringify(midLegMsg));
   ws.send(JSON.stringify(backLegMsg));
@@ -68,19 +70,45 @@ ws.onopen = function () {
 ws.onmessage = function (e) {
   console.log("receiving message...")
   const message = JSON.parse(e.data);
-  if(message["result"]){
-    if(message["id"] === 100){
-      const frontLegObject = {}
+  const result = message["result"];
+  const id = message["id"];
+  if(result){
+    if(id === 100){
+      const frontLegObject = {
+        leg: frontLeg, 
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(frontLegObject);
+      console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
+    } else if(id === 200){
+      const midLegObject = {
+        leg: midLeg, 
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(midLegObject);
+      console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
+    } else if (id === 300){
+      const backLegObject = {
+        leg: backLeg,
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(backLegObject);
+      console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
     }
-    // console.log(message["result"]);
 
   } else if(message["error"]){
     let error_message = message['error']['message']
     let error_code = message['error']['code']
     console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
-  }else{
+
+  } else {
     console.error('websocket error')
   }
+
+  console.log(typeof(tripleDataframeArray));
 }
 
 // when a websocket connection is established
@@ -97,7 +125,7 @@ websocketServer.on('connection', (webSocketClient) => {
       .clients
       .forEach((client) => {
         // send the client the current message
-        const childPython = spawn('python', ['backtester.py', message]);
+        const childPython = spawn('python', ['backtester.py', tripleDataframeArray]);
         childPython.stdout.on('data', (data) => {
           console.log('stdout output:\n');
           // console.log(data.toString());
