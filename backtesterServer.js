@@ -34,10 +34,10 @@ console.log(`sinceDay: ${sinceDay}, now: ${now}`);
 const tripleDataframeArray = [];
 
 // function to send messages for chart data
-function chartMsg(leg){
+function chartMsg(leg, id){
   return {
     "jsonrpc" : "2.0",
-    "id" : 833,
+    "id" : id,
     "method" : "public/get_tradingview_chart_data",
     "params" : {
       "instrument_name" : leg,
@@ -49,26 +49,38 @@ function chartMsg(leg){
 } 
 
 // instantiate leg name constants for 
-const front_leg = "ETH-30SEP22"
-const mid_leg = "ETH-24JUN22"
-const back_leg = "ETH-PERPETUAL"
+const frontLeg = "ETH-30SEP22"
+const midLeg = "ETH-24JUN22"
+const backLeg = "ETH-PERPETUAL"
 
 // open the websocket to Deribit
 ws.onopen = function () {
   console.log("opening deribit websocket connection...")
   console.log("sending chart messages..")
-  let front_leg_msg = chartMsg(front_leg);
-  let mid_leg_msg = chartMsg(mid_leg);
-  let back_leg_msg = chartMsg(back_leg);
-  ws.send(JSON.stringify(front_leg_msg));
-  ws.send(JSON.stringify(mid_leg_msg));
-  ws.send(JSON.stringify(back_leg_msg));
+  let frontLegMsg = chartMsg(frontLeg, 100);
+  let midLegMsg = chartMsg(midLeg, 200);
+  let backLegMsg = chartMsg(backLeg, 300);
+  ws.send(JSON.stringify(frontLegMsg));
+  ws.send(JSON.stringify(midLegMsg));
+  ws.send(JSON.stringify(backLegMsg));
 };
 
 ws.onmessage = function (e) {
   console.log("receiving message...")
   const message = JSON.parse(e.data);
-  console.log(message);
+  if(message["result"]){
+    if(message["id"] === 100){
+      const frontLegObject = {}
+    }
+    // console.log(message["result"]);
+
+  } else if(message["error"]){
+    let error_message = message['error']['message']
+    let error_code = message['error']['code']
+    console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
+  }else{
+    console.error('websocket error')
+  }
 }
 
 // when a websocket connection is established
