@@ -14,20 +14,22 @@ from johansen import coint_johansen
 import warnings
 
 # df_object = json.loads(sys.argv[1])
-df_object = pd.read_json("./test.json")
+df_object = pd.read_json(sys.argv[1])
 
 
-print('printing df_object...')
-print(df_object.head())
-print(df_object.columns)
+# print('printing df_object...')
+# print(df_object.head())
+# print(df_object.columns)
 
 # print(df_object.iloc[0])
 
 front_leg_instrument = df_object.iloc[0]["leg"]
 middle_leg_instrument = df_object.iloc[1]["leg"]
 back_leg_instrument = df_object.iloc[2]["leg"]
+tf = df_object.iloc[3]["tf"]
 
-print(f'front_leg_instrument = {front_leg_instrument}')
+# print(f'tf is {tf}')
+# print(f'front_leg_instrument = {front_leg_instrument}')
 
 # tick_index = first_df["ticks"]
 # close_price = first_df["close"]
@@ -69,7 +71,7 @@ def triple_df_builder(df_object):
         # print(f'length of dataframe is {len(df)}')
         return df
     except:
-        print('one of the legs are not process')
+        print('one of the legs are not processing')
         pass
 
 def johansen_test(df):
@@ -100,9 +102,9 @@ def johansen_test(df):
     #Print half-life, or time taken for data to revert to mean
     theta = result.eig[0]
     half_life = math.log(2)/theta
-    print ('--------------------------------------------------')
-    print ('--> Half Life')
-    print (f"The expected holding period is {half_life} periods.")
+    # print ('--------------------------------------------------')
+    # print ('--> Half Life')
+    # print (f"The expected holding period is {half_life} periods.")
 
     # Store the results of Johansen test
     half_df_length = len(df)/2
@@ -250,7 +252,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
     # plt.axis('tight')
     # plt.ylabel('Price')
     
-    output_string = [{
+    output_string = {
         "front_leg": front_leg_instrument, 
         "middle_leg": middle_leg_instrument, 
         "back_leg" : back_leg_instrument, 
@@ -262,30 +264,31 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "front_vector": front_vector,
         "middle_vector": middle_vector,
         "back_vector": back_vector,
-    }]
-
-
-    return [output_string, df]
+    }
+    # print(df.head())
+    # df_json = df.to_json()
+    return output_string
+    # return df_json
 
 df = triple_df_builder(df_object)
 # get vectors
 vectors = johansen_test(df)
 # print('printing all vectors...')
-print(vectors)
+# print(vectors)
 front_vector = vectors[0]
 middle_vector = vectors[1]
 back_vector = vectors[2]
 
 single_result = butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, 20, 2, True, 1, -0.0015)
 
-print(single_result[0])
+# print(single_result[0])
 # get output string
 
 
 # dataframe to json
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
 
-# sys.stdout.write(str(df_object[0]))
+sys.stdout.write(json.dumps(single_result))
 
 # exportable_df = tuple_returned[1]
 

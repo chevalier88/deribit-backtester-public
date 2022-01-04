@@ -24,6 +24,11 @@ function toTimestamp(year, month, day) {
   return datum.getTime();
 }
 
+// instantiate leg name constants, tf, and sinceDay for pulling data 
+const frontLeg = "ETH-30SEP22"
+const midLeg = "ETH-24JUN22"
+const backLeg = "ETH-PERPETUAL"
+
 const tf = "30";
 // build constants to get
 const sinceDay = toTimestamp(2021, 6, 1);
@@ -32,6 +37,8 @@ const now = Date.now();
 console.log(`sinceDay: ${sinceDay}, now: ${now}`);
 
 // instantiate empty array to append/push json results to
+const tfObject = {"tf":tf};
+
 const tripleDataframeArray = [];
 
 // function to send messages for chart data
@@ -49,10 +56,7 @@ function chartMsg(leg, id){
   };
 } 
 
-// instantiate leg name constants for 
-const frontLeg = "ETH-30SEP22"
-const midLeg = "ETH-24JUN22"
-const backLeg = "ETH-PERPETUAL"
+
 
 ws.onmessage = function (e) {
   console.log("receiving message...")
@@ -99,12 +103,15 @@ ws.onmessage = function (e) {
   if (Object.keys(tripleDataframeArray).length === 3){
     console.log(`print first item in Array`)
     console.log(tripleDataframeArray[0])
-    tripleDataframeArray.push(tf)
+    // appending timeframe also
+    tripleDataframeArray.push(tfObject)
     fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
     if (err) {
         throw err;
     }
+    console.log(Object.keys(tripleDataframeArray));
     console.log("JSON data is saved.");
+    ws.close()
 });
   }
 }
@@ -143,12 +150,13 @@ websocketServer.on('connection', (webSocketClient) => {
         const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
         childPython.stdout.on('data', (data) => {
           console.log('stdout output:\n');
-          console.log(data.toString());
+          // console.log(data.toString());
           // const pythonObject = JSON.parse(data);
-          // // client.send(pythonObject);
+          const dataObject = data.toString()
+          // client.send(pythonObject);
           // console.log(`receiving an ${typeof (pythonObject)} from backtester.py...`);
-          // console.log(pythonObject);
-          // client.send(data.toString());
+          console.log(JSON.parse(dataObject));
+          client.send(dataObject);
         });
         childPython.stderr.on('data', (data) => {
           console.error(`stderr error: ${data.toString()}`);
