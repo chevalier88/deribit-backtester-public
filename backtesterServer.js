@@ -33,12 +33,42 @@ console.log(`sinceDay: ${sinceDay}, now: ${now}`);
 // instantiate empty array to append/push json results to
 const tripleDataframeArray = [];
 
+function chartMsg(leg){
+  return {
+    "jsonrpc" : "2.0",
+    "id" : 833,
+    "method" : "public/get_tradingview_chart_data",
+    "params" : {
+      "instrument_name" : leg,
+      "start_timestamp" : sinceDay,
+      "end_timestamp" : now,
+      "resolution" : "30"
+    }
+  };
+} 
+
+// instantiate leg name constants for 
+const front_leg = "ETH-30SEP22"
+const mid_leg = "ETH-24JUN22"
+const back_leg = "ETH-PERPETUAL"
+
 // open the websocket to Deribit
 ws.onopen = function () {
-  ws.send(JSON.stringify(authMsg));
-  // subscribe to instrument tickers
-  ws.send(JSON.stringify(subscribeMsg));
+  console.log("opening deribit websocket connection...")
+  console.log("sending chart messages..")
+  let front_leg_msg = chartMsg(front_leg);
+  let mid_leg_msg = chartMsg(mid_leg);
+  let back_leg_msg = chartMsg(back_leg);
+  ws.send(JSON.stringify(front_leg_msg));
+  ws.send(JSON.stringify(mid_leg_msg));
+  ws.send(JSON.stringify(back_leg_msg));
 };
+
+ws.onmessage = function (e) {
+  console.log("receiving message...")
+  const message = JSON.parse(e.data);
+  console.log(message);
+}
 
 // when a websocket connection is established
 websocketServer.on('connection', (webSocketClient) => {
