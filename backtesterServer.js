@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
 // const jfs = require('./jsonFileStorage.js');
-// const fn = require('./functions.js');
+const fn = require('./functions.js');
 
 const serverPort = 3000;
 const http = require('http');
@@ -23,7 +23,6 @@ function toTimestamp(year, month, day) {
   const datum = new Date(Date.UTC(year, month - 1, day));
   return datum.getTime();
 }
-
 // instantiate leg name constants, tf, and sinceDay for pulling data 
 const frontLeg = "ETH-30SEP22"
 const midLeg = "ETH-24JUN22"
@@ -31,9 +30,18 @@ const backLeg = "ETH-PERPETUAL"
 
 const tf = "30";
 // build constants to get
-const sinceDay = toTimestamp(2021, 6, 1);
+const sinceDay = fn.toTimestamp(2021, 6, 1);
 const now = Date.now();
 
+const testMsg = {
+  "params": {
+    "since_day_input": "default",
+    "front_leg":"ETH-24JUN22",
+    "mid_leg":"ETH-25MAR22",
+    "back_leg":"BTC-PERPETUAL",
+    "tf":60,
+  }
+}
 console.log(`sinceDay: ${sinceDay}, now: ${now}`);
 
 // instantiate empty array to append/push json results to
@@ -42,19 +50,7 @@ const tfObject = {"tf":tf};
 const tripleDataframeArray = [];
 
 // function to send messages for chart data
-function chartMsg(leg, id){
-  return {
-    "jsonrpc" : "2.0",
-    "id" : id,
-    "method" : "public/get_tradingview_chart_data",
-    "params" : {
-      "instrument_name" : leg,
-      "start_timestamp" : sinceDay,
-      "end_timestamp" : now,
-      "resolution" : tf
-    }
-  };
-} 
+
 
 
 
@@ -121,9 +117,9 @@ ws.onopen = function () {
   console.log("opening deribit websocket connection...")
   console.log("sending chart messages..")
 
-  let frontLegMsg = chartMsg(frontLeg, 100);
-  let midLegMsg = chartMsg(midLeg, 200);
-  let backLegMsg = chartMsg(backLeg, 300);
+  let frontLegMsg = fn.chartMsg(frontLeg, 100);
+  let midLegMsg = fn.chartMsg(midLeg, 200);
+  let backLegMsg = fn.chartMsg(backLeg, 300);
 
   ws.send(JSON.stringify(frontLegMsg));
   ws.send(JSON.stringify(midLegMsg));
@@ -152,7 +148,7 @@ websocketServer.on('connection', (webSocketClient) => {
           console.log('stdout output:\n');
           const dataObject = data.toString()
           console.log(JSON.parse(dataObject)); //works for output_string, not json df
-          // client.send(JSON.parse(dataObject));
+          client.send(dataObject);
           // console.log(JSON.parse(data))
           // const pythonObject = JSON.parse(data);
           // console.log(pythonObject);
