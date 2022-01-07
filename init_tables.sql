@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "backtests" (
   "front_leg" TEXT,
   "middle_leg" TEXT,
   "back_leg" TEXT,
-  "timeframe" INTEGER,
+  "timeframe_id" INTEGER,
   "ROI" DECIMAL,
   "length" INTEGER,
   "lookback" DECIMAL,
@@ -41,3 +41,7 @@ CREATE TABLE IF NOT EXISTS "backtests_instruments" (
   "instrument_id" INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS "timeframes" (
+  "id" SERIAL PRIMARY KEY,
+  "timeframe" TEXT
+);

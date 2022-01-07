@@ -19,3 +19,14 @@ VALUES
   ('ETH-30SEP22'),
   ('ETH-14JAN22'),
   ('ETH-PERPETUAL');
+
+INSERT INTO 
+  timeframes (timeframe) 
+VALUES
+  ('30'), 
+  ('60'), 
+  ('120'), 
+  ('180'), 
+  ('360'), 
+  ('720'), 
+  ('1D');

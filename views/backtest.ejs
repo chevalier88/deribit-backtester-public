@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <%- include('partials/head', {title: `Bird Sighting Form`, background:
-    `https://c.tenor.com/5lHDGVVvRIQAAAAC/birds-attack-all-that.gif`}); -%>
+    <%- include('partials/head', {title: `Backtesting Form`, background:
+    `https://images.mktw.net/im-429485?width=700&size=1.4382022471910112&pixel_ratio=1.5`});
+    -%>
 
     <!-- adapted from https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_html_attr_set and 
     https://stackoverflow.com/questions/28203140/how-to-make-todays-date-default-value-in-bootstrap-date-input/28203274-->
@@ -18,8 +19,8 @@
     </script>
   </head>
   <body>
-    <%- include('partials/navbar-header', {header: `Bird Watching Form`,
-    subheader: `Submit Your Bird Sighting`}); -%>
+    <%- include('partials/navbar-header', {header: `Backtest Form`, subheader:
+    `Submit Your New Backtest`}); -%>
 
     <div class="container" id="form-container" style="max-width: 600px">
       <form action="/note" method="POST">
@@ -62,9 +63,13 @@
         <div class="form-group">
           <div class="col">
             <div class="col justify-content-start">
-              <label for="species_id">Species: </label>
-              <select class="form-control" name="species_id" id="species_id">
-                <% species.forEach((type) => { %>
+              <label for="instruments_id">Instruments: </label>
+              <select
+                class="form-control"
+                name="instruments_id"
+                id="instruments_id"
+              >
+                <% instruments.forEach((type) => { %>
                 <option value="<%= type.id %>"><%= type.name %></option>
                 <% }) %>
               </select>
@@ -83,7 +88,7 @@
             required
           />
         </div> -->
-        <p>Behaviour:</p>
+        <p>Instruments:</p>
         <div class="form-check form-check-inline">
           <input
             class="form-check-input"

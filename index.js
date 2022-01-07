@@ -11,7 +11,7 @@ const { Pool } = pg;
 const pgConnectionConfigs = {
   user: 'grahamlim',
   host: 'localhost',
-  database: 'birdwatching',
+  database: 'backtester',
   port: 5432, // Postgres server always runs on this port by default
 };
 const pool = new Pool(pgConnectionConfigs);
@@ -153,8 +153,8 @@ app.get('/logout', (request, response) => {
 
 app.get('/backtest', (request, response) => {
   console.log('backtest request came in!');
-  console.log(request.cookies.userId);
-  const getBirdFormQuery = (error, result) => {
+  console.log(`user ID now ${request.cookies.userId}`);
+  const getBacktestFormQuery = (error, result) => {
     if (error) {
       console.log('Error executing query', error.stack);
       response.status(503).send(result.rows);
@@ -168,7 +168,7 @@ app.get('/backtest', (request, response) => {
   };
 
   // Query using pg.Pool instead of pg.Client
-  pool.query('SELECT * FROM species', getBirdFormQuery);
+  pool.query('SELECT * FROM instruments', getBacktestFormQuery);
 });
 
 // app.post('/note', (request, response) => {
