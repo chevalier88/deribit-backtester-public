@@ -20,8 +20,12 @@
   "homepage": "https://github.com/rocketacademy/base-node-bootcamp#readme",
   "dependencies": {
     "bollinger-bands": "^3.0.2",
+    "cookie-parser": "^1.4.6",
     "csv-parser": "^3.0.0",
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "method-override": "^3.0.0",
+    "pg": "^8.7.1",
     "ws": "^8.2.3"
   },
   "devDependencies": {

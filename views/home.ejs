@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('partials/head', {title: `Homepage`, background:
+    `https://www.investopedia.com/thmb/Jt3PLwa82mUvVunrf_NKwWgGOZA=/680x440/filters:fill(auto,1)/thinkstockphotos_493208894-5bfc2b9746e0fb0051bde2b8.jpg`});
+    -%>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta
+      name="author"
+      content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
+    />
+    <meta name="generator" content="Hugo 0.88.1" />
+    <title>Jumbotron example · Bootstrap v5.1</title>
+
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/5.1/examples/jumbotron/"
+    />
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- adapted from https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_html_attr_set and 
+    https://stackoverflow.com/questions/28203140/how-to-make-todays-date-default-value-in-bootstrap-date-input/28203274-->
+  </head>
+  <body>
+    <%- include('partials/navbar-pure'); -%>
+    <div class="container py-4" style="max-width: 600px">
+      <div class="p-5 mb-4 bg-light rounded-3" id="jumbotron-3">
+        <div class="container-fluid py-5">
+          <h1 class="display-5 fw-bold">Backtest Crypto Derivatives</h1>
+          <p class="col-md-8 fs-4">
+            Use this app to backtest Cryptocurrency Futures on Deribit for
+            mean-reversion, in order to find a profitable trading strategy.
+          </p>
+        </div>
+        <br />
+        <div class="col text-center">
+          <a href="/backtest">
+            <button class="btn btn-primary btn-lg" type="button">
+              Start Backtesting
+            </button>
+          </a>
+        </div>
+      </div>
+      <br />
+      <div class="row align-items-md-stretch">
+        <div class="col-md-6">
+          <div class="h-100 p-5 text-white bg-dark rounded-3">
+            <h2>About Mean Reversion</h2>
+            <p>
+              Mean reversion is a financial term for the assumption that an
+              asset's price will tend to converge to the average price over
+              time. Using mean reversion as a timing strategy involves both the
+              identification of the trading range for a security and the
+              computation of the average price using quantitative methods.
+            </p>
+            <button class="btn btn-outline-light" type="button">
+              <a href="https://www.investopedia.com/terms/m/meanreversion.asp"
+                >Learn more</a
+              >
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="h-100 p-5 bg-light border rounded-3">
+            <h2>What's Deribit?</h2>
+            <p>
+              Deribit is a Bitcoin trading platform that enables individuals
+              around the world to engage in futures and options trading. Members
+              can use crypto in order to make deposits, withdrawals, and to
+              collateralize trades. The platform also allows traders to take
+              advantage of up to 50x leverage when trading crypto futures. While
+              not as well known as other cryptocurrency futures exchanges,
+              Deribit is growing in popularity and proving to be an attractive
+              alternative for crypto enthusiasts actively involved in futures
+              trading.
+            </p>
+            <button class="btn btn-outline-secondary" type="button">
+              <a href="https://www.deribit.com/futures/BTC-PERPETUAL"
+                >Visit Deribit
+              </a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br />
+    <br />
+    <%- include('partials/footer'); -%>
+  </body>
+</html>

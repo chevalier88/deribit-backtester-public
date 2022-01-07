@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('partials/head', {title: `Bird Note ${index} Behaviour(s)`,
+    background:
+    `https://bestanimations.com/media/birds/1782115527owl-landing-amazing-gif.gif`});
+    -%>
+
+    <script>
+      function sortTableAlph(n) {
+        var table,
+          rows,
+          switching,
+          i,
+          x,
+          y,
+          shouldSwitch,
+          dir,
+          switchcount = 0;
+        table = document.getElementById("myTable");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+          //start by saying: no switching is done:
+          switching = false;
+          rows = table.rows;
+          /*Loop through all table rows (except the first, which contains table headers):*/
+          for (i = 1; i < rows.length - 1; i++) {
+            //start by saying there should be no switching:
+            shouldSwitch = false;
+            /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+            if (dir == "asc") {
+              if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                //if so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+              }
+            } else if (dir == "desc") {
+              if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                //if so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+              }
+            }
+          }
+          if (shouldSwitch) {
+            /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            //Each time a switch is done, increase this count by 1:
+            switchcount++;
+          } else {
+            /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+            if (switchcount == 0 && dir == "asc") {
+              dir = "desc";
+              switching = true;
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      function sortTableNum(n) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+          //start by saying: no switching is done:
+          switching = false;
+          rows = table.rows;
+          /*Loop through all table rows (except the first, which contains table headers):*/
+          for (i = 1; i < rows.length - 1; i++) {
+            //start by saying there should be no switching:
+            shouldSwitch = false;
+            /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            //check if the two rows should switch place:
+            if (Number(x.innerHTML) > Number(y.innerHTML)) {
+              //if so, mark as a switch and break the loop:
+              shouldSwitch = true;
+              break;
+            }
+          }
+          if (shouldSwitch) {
+            /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+          }
+        }
+      }
+    </script>
+    <script>
+      function sortDate(n) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+          //start by saying: no switching is done:
+          switching = false;
+          rows = table.rows;
+          /*Loop through all table rows (except the first, which contains table headers):*/
+          for (i = 1; i < rows.length - 1; i++) {
+            //start by saying there should be no switching:
+            shouldSwitch = false;
+            /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+
+            var date1 = new Date(x.innerText);
+            var date2 = new Date(y.innerText);
+            //check if the two rows should switch place:
+            if (date1 > date2) {
+              //if so, mark as a switch and break the loop:
+              shouldSwitch = true;
+              break;
+            }
+          }
+          if (shouldSwitch) {
+            /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <%- include('partials/navbar-header', {header: `Bird Note ${index}
+    Behaviour(s)`, subheader: `Total No. of Behaviours: ${allActions.length}`});
+    -%>
+
+    <div class="container" style="max-width: 600px">
+      <div class="table-responsive">
+        <table class="table table-hover sortable" id="myTable">
+          <thead>
+            <tr id="table-sightings-header">
+              <th onclick="sortTableNum(0)">
+                #
+                <i class="fa fa-long-arrow-down"></i>
+              </th>
+              <th onclick="sortTableAlph(1)">
+                Action
+                <i class="fa fa-arrows-v"></i>
+              </th>
+
+              <!-- <th>Edit/Delete</th> -->
+            </tr>
+          </thead>
+          <tbody id="table-sightings-rows">
+            <!-- Create an <tr> element for each index in allSightings -->
+            <!-- adapted from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach -->
+            <% allActions.forEach((element, index) => { %>
+            <tr>
+              <td><%= element.id %></td>
+              <td><%= element.action %></td>
+
+              <!-- <td style="white-space: nowrap">
+                <div
+                  class="btn-group"
+                  id="fa-btn-group"
+                  role="group"
+                  aria-label="Basic example"
+                >
+                  <button
+                    class="btn btn-primary btn-sm text-center"
+                    type="button"
+                    onclick="location.href=`/note/<%= element.id%>/edit`"
+                  >
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"> </i>
+                  </button>
+                  <form
+                    action="/note/<%= element.id %>?_method=DELETE"
+                    method="POST"
+                    id="delete-form"
+                  ></form>
+                  <button
+                    class="btn btn-danger btn-sm text-center"
+                    type="submit"
+                    form="delete-form"
+                  >
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </td> -->
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <%- include('partials/footer'); -%>
+  </body>
+</html>

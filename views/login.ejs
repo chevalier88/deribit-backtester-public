@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('partials/head', {title: `Login`, background:
+    `https://images.mktw.net/im-429485?width=700&size=1.4382022471910112&pixel_ratio=1.5`});
+    -%>
+
+    <!-- adapted from https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_html_attr_set and 
+    https://stackoverflow.com/questions/28203140/how-to-make-todays-date-default-value-in-bootstrap-date-input/28203274-->
+    <script>
+      var today = Date();
+
+      $(document).ready(function () {
+        $("#creation_time").attr("value", today);
+        $("#submit-button").click(function () {
+          $("#creation_time").attr("value", today);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <%- include('partials/navbar-header', {header: `Login`, subheader: `Enter
+    your email and password`}); -%>
+
+    <div class="container" id="form-container" style="max-width: 600px">
+      <form action="/login" method="POST">
+        <div class="col">
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="birdy_mcbirdson@gmail.com"
+              required
+            />
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="text"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="password123_lol"
+              required
+            />
+          </div>
+        </div>
+        <div class="col text-center">
+          <input
+            class="btn btn-primary btn-lg text-center"
+            id="submit-button"
+            type="submit"
+            value="Login"
+          />
+        </div>
+      </form>
+      <br />
+      <div class="col text-center">
+        <a href="/signup"> Don't have an account? Sign Up Here </a>
+      </div>
+      <div id="div2"></div>
+      <br />
+    </div>
+    <%- include('partials/footer'); -%>
+  </body>
+</html>
