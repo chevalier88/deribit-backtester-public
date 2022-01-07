@@ -160,7 +160,7 @@ app.get('/backtest', (request, response) => {
       response.status(503).send(result.rows);
     } else {
       const data = {
-        instruments: result.rows,
+        timeframes: result.rows,
       };
       console.log(result.rows);
       response.render('backtest', data);
@@ -168,72 +168,73 @@ app.get('/backtest', (request, response) => {
   };
 
   // Query using pg.Pool instead of pg.Client
-  pool.query('SELECT * FROM instruments', getBacktestFormQuery);
+  pool.query('SELECT * FROM timeframes', getBacktestFormQuery);
 });
 
-// app.post('/note', (request, response) => {
-//   console.log('note form post request came in');
-//   const formData = request.body;
-//   console.log('printing formData...');
-//   console.log(formData);
+app.post('/backtest', (request, response) => {
+  console.log('note form post request came in');
+  const formData = request.body;
+  console.log('printing formData...');
+  console.log(formData);
+  response.send(formData);
+});
+  // const { date } = formData;
+  // // const { behaviour } = formData;
+  // const flockSize = formData.flock_size;
+  // const { appearance } = formData;
+  // const cookieUserId = Number(request.cookies.userId);
+  // const speciesId = formData.species_id;
 
-//   const { date } = formData;
-//   // const { behaviour } = formData;
-//   const flockSize = formData.flock_size;
-//   const { appearance } = formData;
-//   const cookieUserId = Number(request.cookies.userId);
-//   const speciesId = formData.species_id;
+  // console.log(cookieUserId);
 
-//   console.log(cookieUserId);
+  // const postBirdFormQuery = `
+  // INSERT INTO birds (date, flock_size, appearance, user_id, species_id)
+  // VALUES ('${date}', ${flockSize}, '${appearance}', ${cookieUserId}, ${speciesId})
+  // returning id;
+  // `;
+  // console.log(postBirdFormQuery);
+  // const postBirdFormQueryResult = (error, result) => {
+  //   if (error) {
+  //     console.log('Error executing query', error.stack);
+  //     response.status(503).send(result);
+  //   } else {
+  //     console.log('printing result.rows...');
+  //     console.log(result.rows);
+  //     console.log('printing result.rows[0] ...');
 
-//   const postBirdFormQuery = `
-//   INSERT INTO birds (date, flock_size, appearance, user_id, species_id)
-//   VALUES ('${date}', ${flockSize}, '${appearance}', ${cookieUserId}, ${speciesId})
-//   returning id;
-//   `;
-//   console.log(postBirdFormQuery);
-//   const postBirdFormQueryResult = (error, result) => {
-//     if (error) {
-//       console.log('Error executing query', error.stack);
-//       response.status(503).send(result);
-//     } else {
-//       console.log('printing result.rows...');
-//       console.log(result.rows);
-//       console.log('printing result.rows[0] ...');
+  //     console.log(result.rows[0]);
+  //     const noteId = result.rows[0].id;
 
-//       console.log(result.rows[0]);
-//       const noteId = result.rows[0].id;
+  //     formData.behaviour.forEach((element) => {
+  //       const behaviourIdQuery = `SELECT id FROM behaviour WHERE action = '${element}'`;
 
-//       formData.behaviour.forEach((element) => {
-//         const behaviourIdQuery = `SELECT id FROM behaviour WHERE action = '${element}'`;
+  //       pool.query(behaviourIdQuery, (behaviourIdQueryError, behaviourIdQueryResult) => {
+  //         if (behaviourIdQueryError) {
+  //           console.log('error', behaviourIdQueryError);
+  //         } else {
+  //           console.log('behaviour id:', behaviourIdQueryResult.rows);
+  //           const behaviourId = behaviourIdQueryResult.rows[0].id;
+  //           const behaviourData = [noteId, behaviourId];
 
-//         pool.query(behaviourIdQuery, (behaviourIdQueryError, behaviourIdQueryResult) => {
-//           if (behaviourIdQueryError) {
-//             console.log('error', behaviourIdQueryError);
-//           } else {
-//             console.log('behaviour id:', behaviourIdQueryResult.rows);
-//             const behaviourId = behaviourIdQueryResult.rows[0].id;
-//             const behaviourData = [noteId, behaviourId];
+  //           const notesBehaviourEntry = 'INSERT INTO notes_behaviour (notes_id, behaviour_id) VALUES ($1, $2)';
 
-//             const notesBehaviourEntry = 'INSERT INTO notes_behaviour (notes_id, behaviour_id) VALUES ($1, $2)';
+  //           pool.query(notesBehaviourEntry, behaviourData, (BehaviourError, BehaviourResult) => {
+  //             if (BehaviourError) {
+  //               console.log('error', BehaviourError);
+  //             } else {
+  //               console.log('printing Behaviour Entry Results...');
+  //               console.log(BehaviourResult);
+  //             }
+  //           });
+  //         }
+  //       });
+  //     });
+  //     response.redirect('/');
+  //   }
 
-//             pool.query(notesBehaviourEntry, behaviourData, (BehaviourError, BehaviourResult) => {
-//               if (BehaviourError) {
-//                 console.log('error', BehaviourError);
-//               } else {
-//                 console.log('printing Behaviour Entry Results...');
-//                 console.log(BehaviourResult);
-//               }
-//             });
-//           }
-//         });
-//       });
-//       response.redirect('/');
-//     }
-//   };
 
-//   // Query using pg.Pool instead of pg.Client
-//   pool.query(postBirdFormQuery, postBirdFormQueryResult);
+  // Query using pg.Pool instead of pg.Client
+  // pool.query(postBirdFormQuery, postBirdFormQueryResult);
 // });
 
 // app.get('/note/:id', (request, response) => {
