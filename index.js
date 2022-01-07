@@ -151,25 +151,25 @@ app.get('/logout', (request, response) => {
   response.redirect('/login');
 });
 
-// app.get('/note', (request, response) => {
-//   console.log('note form get request came in');
-//   console.log(typeof (request.cookies.userId));
-//   const getBirdFormQuery = (error, result) => {
-//     if (error) {
-//       console.log('Error executing query', error.stack);
-//       response.status(503).send(result.rows);
-//     } else {
-//       const data = {
-//         species: result.rows,
-//       };
-//       console.log(result.rows);
-//       response.render('noteForm', data);
-//     }
-//   };
+app.get('/backtest', (request, response) => {
+  console.log('backtest request came in!');
+  console.log(request.cookies.userId);
+  const getBirdFormQuery = (error, result) => {
+    if (error) {
+      console.log('Error executing query', error.stack);
+      response.status(503).send(result.rows);
+    } else {
+      const data = {
+        instruments: result.rows,
+      };
+      console.log(result.rows);
+      response.render('backtest', data);
+    }
+  };
 
-//   // Query using pg.Pool instead of pg.Client
-//   pool.query('SELECT * FROM species', getBirdFormQuery);
-// });
+  // Query using pg.Pool instead of pg.Client
+  pool.query('SELECT * FROM species', getBirdFormQuery);
+});
 
 // app.post('/note', (request, response) => {
 //   console.log('note form post request came in');
