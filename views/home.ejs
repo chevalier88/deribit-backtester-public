@@ -43,28 +43,25 @@
   </head>
   <body>
     <%- include('partials/navbar-pure'); -%>
-    <div class="container py-4" style="max-width: 600px">
-      <div class="p-5 mb-4 bg-light rounded-3" id="jumbotron-3">
-        <div class="container-fluid py-5">
-          <h1 class="display-5 fw-bold">Backtest Crypto Derivatives</h1>
-          <br />
-          <p class="col-md-8 fs-4">
-            Use this app to backtest Cryptocurrency Futures on Deribit for
-            mean-reversion, in order to find a profitable trading strategy.
-          </p>
-          <div class="col text-center">
-            <a href="/backtest">
-              <button class="btn btn-primary btn-lg" type="button">
-                Start Backtesting
-              </button>
-            </a>
-          </div>
-        </div>
+    <div
+      class="container jumbotron text-center vertical-center"
+      style="max-width: 600px"
+      id="jumbotron-3"
+    >
+      <h1 class="display-4">Backtest Crypto Derivatives</h1>
+      <p class="lead">
+        Use this app to backtest Cryptocurrency Futures on Deribit for
+        mean-reversion, in order to find a profitable trading strategy.
+      </p>
+      <div class="col text-center">
+        <a href="/backtest">
+          <button class="btn btn-primary btn-lg" type="button">
+            Start Backtesting
+          </button>
+        </a>
       </div>
-      <br />
-      <br />
 
-      <div class="row align-items-md-stretch">
+      <div class="row">
         <div class="col-md-6">
           <div class="h-100 p-5 text-white bg-dark rounded-3">
             <h2>About Mean Reversion</h2>
@@ -104,9 +101,7 @@
           </div>
         </div>
       </div>
+      <div class="row"><%- include('partials/footer'); -%></div>
     </div>
-    <br />
-    <br />
-    <%- include('partials/footer'); -%>
   </body>
 </html>

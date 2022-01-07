@@ -21,7 +21,8 @@
   <body>
     <%- include('partials/navbar-header', {header: `Backtest Form`, subheader:
     `Submit Your New Backtest`}); -%>
-
+    <br />
+    <br />
     <div class="container" id="form-container" style="max-width: 600px">
       <form action="/note" method="POST">
         <div class="form-group">
@@ -63,7 +64,7 @@
         <div class="form-group">
           <div class="col">
             <div class="col justify-content-start">
-              <label for="instruments_id">Instruments: </label>
+              <label for="instruments_id">Timeframes: </label>
               <select
                 class="form-control"
                 name="instruments_id"

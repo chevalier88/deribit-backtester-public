@@ -1,5 +1,5 @@
 body {
-  background-color: white;
+  background-color: black;
 }
 
 #datetimepicker1 {
@@ -24,7 +24,7 @@ body {
 }
 
 #form-container {
-  color: black;
+  color: white;
   max-width: 100%;
 }
 
@@ -70,9 +70,9 @@ body {
   background-image: url(https://filmdaily.co/wp-content/uploads/2021/09/cryptoplatform-lede-1536x804.jpg);
   background-repeat: no-repeat;
   background-size: cover;
-  background-blend-mode: overlay;
+  /* background-blend-mode: overlay; */
   height: 15vh;
   color: white;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-    1px 1px 0 #000;
+  /* text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000; */
 }
