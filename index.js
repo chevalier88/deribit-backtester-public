@@ -5,6 +5,7 @@ const express = require('express');
 const pg = require('pg');
 const methodOverride = require('method-override');
 const cookieParser= require('cookie-parser');
+const { time } = require('console');
 
 // Initialise DB connection
 const { Pool } = pg;
@@ -176,67 +177,19 @@ app.post('/backtest', (request, response) => {
   const formData = request.body;
   console.log('printing formData...');
   console.log(formData);
-  response.send(formData);
+  
+  let timeframeEntry = 0;
+  // console.log(formData.timeframes_id)
+  // get the actual timeframe name based on timeframe id (one to many)
+
+  pool
+    .query(`SELECT * FROM timeframes WHERE id=${formData.timeframes_id};`)
+    .then((result) => {
+      console.log(result.rows[0].timeframe)
+      timeframeEntry = result.rows[0].timeframe
+      console.log(`timeframe entry: ${timeframeEntry}`)
+    });
 });
-  // const { date } = formData;
-  // // const { behaviour } = formData;
-  // const flockSize = formData.flock_size;
-  // const { appearance } = formData;
-  // const cookieUserId = Number(request.cookies.userId);
-  // const speciesId = formData.species_id;
-
-  // console.log(cookieUserId);
-
-  // const postBirdFormQuery = `
-  // INSERT INTO birds (date, flock_size, appearance, user_id, species_id)
-  // VALUES ('${date}', ${flockSize}, '${appearance}', ${cookieUserId}, ${speciesId})
-  // returning id;
-  // `;
-  // console.log(postBirdFormQuery);
-  // const postBirdFormQueryResult = (error, result) => {
-  //   if (error) {
-  //     console.log('Error executing query', error.stack);
-  //     response.status(503).send(result);
-  //   } else {
-  //     console.log('printing result.rows...');
-  //     console.log(result.rows);
-  //     console.log('printing result.rows[0] ...');
-
-  //     console.log(result.rows[0]);
-  //     const noteId = result.rows[0].id;
-
-  //     formData.behaviour.forEach((element) => {
-  //       const behaviourIdQuery = `SELECT id FROM behaviour WHERE action = '${element}'`;
-
-  //       pool.query(behaviourIdQuery, (behaviourIdQueryError, behaviourIdQueryResult) => {
-  //         if (behaviourIdQueryError) {
-  //           console.log('error', behaviourIdQueryError);
-  //         } else {
-  //           console.log('behaviour id:', behaviourIdQueryResult.rows);
-  //           const behaviourId = behaviourIdQueryResult.rows[0].id;
-  //           const behaviourData = [noteId, behaviourId];
-
-  //           const notesBehaviourEntry = 'INSERT INTO notes_behaviour (notes_id, behaviour_id) VALUES ($1, $2)';
-
-  //           pool.query(notesBehaviourEntry, behaviourData, (BehaviourError, BehaviourResult) => {
-  //             if (BehaviourError) {
-  //               console.log('error', BehaviourError);
-  //             } else {
-  //               console.log('printing Behaviour Entry Results...');
-  //               console.log(BehaviourResult);
-  //             }
-  //           });
-  //         }
-  //       });
-  //     });
-  //     response.redirect('/');
-  //   }
-
-
-  // Query using pg.Pool instead of pg.Client
-  // pool.query(postBirdFormQuery, postBirdFormQueryResult);
-// });
-
 // app.get('/note/:id', (request, response) => {
 //   console.log('indiv note request came in');
 

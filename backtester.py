@@ -21,6 +21,7 @@ df_object = pd.read_json(sys.argv[1])
 
 # print(df_object.iloc[0])
 
+# the now timestmap will also be taken from df_object later
 now = datetime.now().strftime(("%d_%m_%Y_%H_%M_%S"))
 
 front_leg_instrument = df_object.iloc[0]["leg"]
