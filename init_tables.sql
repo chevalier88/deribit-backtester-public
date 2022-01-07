@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS "users" (
+  "id" SERIAL PRIMARY KEY,
+  "email" TEXT,
+  "password" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "backtests" (
+  "id" SERIAL PRIMARY KEY,
+  "user_id" INTEGER,
+  "front_leg" TEXT,
+  "middle_leg" TEXT,
+  "back_leg" TEXT,
+  "timeframe" INTEGER,
+  "ROI" DECIMAL,
+  "length" INTEGER,
+  "lookback" DECIMAL,
+  "std_dev" DECIMAL,
+  "front_vector" DECIMAL,
+  "middle_vector" DECIMAL,
+  "back_vector" DECIMAL,
+  "created_timestamp" DATE,
+  "starting_balance" DECIMAL,
+  "ending_balance" DECIMAL
+);
+
+CREATE TABLE IF NOT EXISTS "backtest_cumret_timeseries" (
+  "id" SERIAL PRIMARY KEY,
+  "backtest_id" INTEGER,
+  "timestamp" DATE,
+  "cumret" DECIMAL
+);
+
+CREATE TABLE IF NOT EXISTS "instruments" (
+  "id" SERIAL PRIMARY KEY,
+  "name" TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "backtests_instruments" (
+  "id" SERIAL PRIMARY KEY,
+  "backtest_id" INTEGER,
+  "instrument_id" INTEGER
+);
+

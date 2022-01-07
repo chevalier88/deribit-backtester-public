@@ -264,7 +264,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "front_vector": front_vector,
         "middle_vector": middle_vector,
         "back_vector": back_vector,
-        "backtest_timestamp": f'{now}_TF{tf}',
+        "backtest_created_timestamp": f'{now}_TF{tf}',
     }
     # print(df.head())
 
