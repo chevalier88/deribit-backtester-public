@@ -22,6 +22,19 @@ function chartMsg(leg, id, sinceDay, now, tf){
   };
 } 
 
+function connect() {
+    return new Promise(function(resolve, reject) {
+      const ws = new WebSocket('wss://www.deribit.com/ws/api/v2');
+
+      ws.onopen = function() {
+          resolve(server);
+      };
+      ws.onerror = function(err) {
+          reject(err);
+      };
+    });
+}
+
 module.exports = {
-  toTimestamp, chartMsg,
+  toTimestamp, chartMsg, connect
 };

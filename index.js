@@ -6,6 +6,11 @@ const pg = require('pg');
 const methodOverride = require('method-override');
 const cookieParser= require('cookie-parser');
 const { time } = require('console');
+const fn = require('./functions.js');
+
+// deribit websocket client
+const WebSocket = require('ws');
+
 
 // Initialise DB connection
 const { Pool } = pg;
@@ -20,6 +25,9 @@ const pool = new Pool(pgConnectionConfigs);
 const app = express();
 
 const PORT = 3008;
+
+// we need sinceDay for the chart runner to work
+const sinceDay = fn.toTimestamp(2021, 6, 1);
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -178,7 +186,12 @@ app.post('/backtest', (request, response) => {
   console.log('printing formData...');
   console.log(formData);
   
-  let timeframeEntry = 0;
+  const now = Date.now();
+
+  let timeframeEntry;
+  let frontLeg;
+  let midLeg;
+  let backLeg;
   // console.log(formData.timeframes_id)
   // get the actual timeframe name based on timeframe id (one to many)
 
@@ -188,7 +201,91 @@ app.post('/backtest', (request, response) => {
       console.log(result.rows[0].timeframe)
       timeframeEntry = result.rows[0].timeframe
       console.log(`timeframe entry: ${timeframeEntry}`)
+      frontLeg = formData.front_leg
+      console.log(`frontLeg: ${frontLeg}`)
+      midLeg = formData.middle_leg
+      backLeg = formData.back_leg
+    }).then()
+
+      // ws.onmessage = function (e) {
+      //   console.log("receiving message...")
+      //   const message = JSON.parse(e.data);
+      //   const result = message["result"];
+      //   const id = message["id"];
+
+      //   if(result){
+      //     if(id === 100){
+      //       const frontLegObject = {
+      //         leg: frontLeg, 
+      //         ticks: result["ticks"],
+      //         close: result["close"],
+      //       }
+      //       tripleDataframeArray.push(frontLegObject);
+      //       console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
+      //     } else if(id === 200){
+      //       const midLegObject = {
+      //         leg: midLeg, 
+      //         ticks: result["ticks"],
+      //         close: result["close"],
+      //       }
+      //       tripleDataframeArray.push(midLegObject);
+      //       console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
+      //     } else if (id === 300){
+      //       const backLegObject = {
+      //         leg: backLeg,
+      //         ticks: result["ticks"],
+      //         close: result["close"],
+      //       }
+      //       tripleDataframeArray.push(backLegObject);
+      //       console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
+      //     }
+
+      //   } else if(message["error"]){
+      //     let error_message = message['error']['message']
+      //     let error_code = message['error']['code']
+      //     console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
+
+      //   } else {
+      //     console.error('websocket error')
+      //   }
+
+      //   console.log(Object.keys(tripleDataframeArray));
+
+      //   if (Object.keys(tripleDataframeArray).length === 3){
+      //     console.log(`print first item in Array`)
+      //     console.log(tripleDataframeArray[0])
+      //     // appending timeframe also
+      //     tripleDataframeArray.push(tfObject)
+      //     fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
+      //     if (err) {
+      //         throw err;
+      //     }
+      //     console.log(Object.keys(tripleDataframeArray));
+      //     console.log("JSON data is saved.");
+      //     ws.close()
+      //     });
+      //   }
+      // }
+
+      // open the websocket to Deribit
+      ws.onopen = function () {
+        console.log("opening deribit websocket connection...")
+        console.log("sending chart messages..")
+
+        let frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
+        let midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
+        let backLegMsg = fn.chartMsg(backLeg, 300, sinceDay, now, timeframeEntry);
+
+        console.log(frontLegMsg)
+        console.log(midLegMsg)
+        console.log(backLegMsg)
+
+        ws.send(JSON.stringify(frontLegMsg));
+        ws.send(JSON.stringify(midLegMsg));
+        ws.send(JSON.stringify(backLegMsg));
+      };
     });
+  
 });
 // app.get('/note/:id', (request, response) => {
 //   console.log('indiv note request came in');

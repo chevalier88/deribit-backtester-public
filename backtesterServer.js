@@ -71,77 +71,77 @@ websocketServer.on('connection', (webSocketClient) => {
   });
 });
 
-// ws.onmessage = function (e) {
-//   console.log("receiving message...")
-//   const message = JSON.parse(e.data);
-//   const result = message["result"];
-//   const id = message["id"];
-//   if(result){
-//     if(id === 100){
-//       const frontLegObject = {
-//         leg: frontLeg, 
-//         ticks: result["ticks"],
-//         close: result["close"],
-//       }
-//       tripleDataframeArray.push(frontLegObject);
-//       console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
-//     } else if(id === 200){
-//       const midLegObject = {
-//         leg: midLeg, 
-//         ticks: result["ticks"],
-//         close: result["close"],
-//       }
-//       tripleDataframeArray.push(midLegObject);
-//       console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
-//     } else if (id === 300){
-//       const backLegObject = {
-//         leg: backLeg,
-//         ticks: result["ticks"],
-//         close: result["close"],
-//       }
-//       tripleDataframeArray.push(backLegObject);
-//       console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
-//     }
+ws.onmessage = function (e) {
+  console.log("receiving message...")
+  const message = JSON.parse(e.data);
+  const result = message["result"];
+  const id = message["id"];
+  if(result){
+    if(id === 100){
+      const frontLegObject = {
+        leg: frontLeg, 
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(frontLegObject);
+      console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
+    } else if(id === 200){
+      const midLegObject = {
+        leg: midLeg, 
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(midLegObject);
+      console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
+    } else if (id === 300){
+      const backLegObject = {
+        leg: backLeg,
+        ticks: result["ticks"],
+        close: result["close"],
+      }
+      tripleDataframeArray.push(backLegObject);
+      console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
+    }
 
-//   } else if(message["error"]){
-//     let error_message = message['error']['message']
-//     let error_code = message['error']['code']
-//     console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
+  } else if(message["error"]){
+    let error_message = message['error']['message']
+    let error_code = message['error']['code']
+    console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
 
-//   } else {
-//     console.error('websocket error')
-//   }
+  } else {
+    console.error('websocket error')
+  }
 
-//   console.log(Object.keys(tripleDataframeArray));
-//   if (Object.keys(tripleDataframeArray).length === 3){
-//     console.log(`print first item in Array`)
-//     console.log(tripleDataframeArray[0])
-//     // appending timeframe also
-//     tripleDataframeArray.push(tfObject)
-//     fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
-//     if (err) {
-//         throw err;
-//     }
-//     console.log(Object.keys(tripleDataframeArray));
-//     console.log("JSON data is saved.");
-//     ws.close()
-// });
-//   }
-// }
+  console.log(Object.keys(tripleDataframeArray));
+  if (Object.keys(tripleDataframeArray).length === 3){
+    console.log(`print first item in Array`)
+    console.log(tripleDataframeArray[0])
+    // appending timeframe also
+    tripleDataframeArray.push(tfObject)
+    fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
+    if (err) {
+        throw err;
+    }
+    console.log(Object.keys(tripleDataframeArray));
+    console.log("JSON data is saved.");
+    ws.close()
+});
+  }
+}
 
-// // open the websocket to Deribit
-// ws.onopen = function () {
-//   console.log("opening deribit websocket connection...")
-//   console.log("sending chart messages..")
+// open the websocket to Deribit
+ws.onopen = function () {
+  console.log("opening deribit websocket connection...")
+  console.log("sending chart messages..")
 
-//   let frontLegMsg = fn.chartMsg(frontLeg, 100);
-//   let midLegMsg = fn.chartMsg(midLeg, 200);
-//   let backLegMsg = fn.chartMsg(backLeg, 300);
+  let frontLegMsg = fn.chartMsg(frontLeg, 100);
+  let midLegMsg = fn.chartMsg(midLeg, 200);
+  let backLegMsg = fn.chartMsg(backLeg, 300);
 
-//   ws.send(JSON.stringify(frontLegMsg));
-//   ws.send(JSON.stringify(midLegMsg));
-//   ws.send(JSON.stringify(backLegMsg));
-// };
+  ws.send(JSON.stringify(frontLegMsg));
+  ws.send(JSON.stringify(midLegMsg));
+  ws.send(JSON.stringify(backLegMsg));
+};
 
 server.listen(serverPort, () => {
   console.log(`backtester websocket server started on port ${serverPort}`);
