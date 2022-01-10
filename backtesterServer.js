@@ -55,18 +55,18 @@ websocketServer.on('connection', (webSocketClient) => {
 
         client.send(messageObject.front_leg)
 
-        // take tripleDataframeArray and send it to the python script
-        // const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
-        // childPython.stdout.on('data', (data) => {
-        //   console.log('stdout output:\n');
-        //   const dataObject = data.toString()
-        //   console.log(JSON.parse(dataObject)); //works for output_string, not json df
-        //   client.send(dataObject);
+        take tripleDataframeArray and send it to the python script
+        const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
+        childPython.stdout.on('data', (data) => {
+          console.log('stdout output:\n');
+          const dataObject = data.toString()
+          console.log(JSON.parse(dataObject)); //works for output_string, not json df
+          client.send(dataObject);
 
-        // });
-        // childPython.stderr.on('data', (data) => {
-        //   console.error(`stderr error: ${data.toString()}`);
-        // });
+        });
+        childPython.stderr.on('data', (data) => {
+          console.error(`stderr error: ${data.toString()}`);
+        });
       });
   });
 });

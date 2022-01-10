@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 // require method because of module error with child spawning
 const fs = require('fs');
+const { spawn } = require('child_process');
 const express = require('express');
 const pg = require('pg');
 const methodOverride = require('method-override');
@@ -10,7 +11,6 @@ const fn = require('./functions.js');
 
 // deribit websocket client
 const WebSocket = require('ws');
-
 
 // Initialise DB connection
 const { Pool } = pg;
@@ -28,6 +28,18 @@ const PORT = 3008;
 
 // we need sinceDay for the chart runner to work
 const sinceDay = fn.toTimestamp(2021, 6, 1);
+
+let timeframeEntry;
+let tfObject;
+let frontLeg;
+let midLeg;
+let backLeg;
+let frontLegMsg;
+let midLegMsg;
+let backLegMsg;
+
+let tripleDataframeArray = [];
+let dataObject;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -186,106 +198,120 @@ app.post('/backtest', (request, response) => {
   console.log('printing formData...');
   console.log(formData);
   
+  // instantiate the websocket
+  const ws = new WebSocket('wss://www.deribit.com/ws/api/v2');
+  console.log(ws)
+
   const now = Date.now();
 
-  let timeframeEntry;
-  let frontLeg;
-  let midLeg;
-  let backLeg;
+  ws.onmessage = function (e) {
+    console.log("receiving message...");
+    const message = JSON.parse(e.data);
+    const result = message["result"];
+    const id = message["id"];
+
+    if(result){
+      if(id === 100){
+        const frontLegObject = {
+          leg: frontLeg, 
+          ticks: result["ticks"],
+          close: result["close"],
+        }
+        tripleDataframeArray.push(frontLegObject);
+        console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
+      } else if(id === 200){
+        const midLegObject = {
+          leg: midLeg, 
+          ticks: result["ticks"],
+          close: result["close"],
+        }
+        tripleDataframeArray.push(midLegObject);
+        console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
+      } else if (id === 300){
+        const backLegObject = {
+          leg: backLeg,
+          ticks: result["ticks"],
+          close: result["close"],
+        }
+        tripleDataframeArray.push(backLegObject);
+        console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
+      }
+
+    } else if(message["error"]){
+      let error_message = message['error']['message']
+      let error_code = message['error']['code']
+      console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
+
+    } else {
+      console.error('websocket error')
+    }
+
+    console.log(Object.keys(tripleDataframeArray));
+
+    if (Object.keys(tripleDataframeArray).length === 3){
+      console.log(`print first item in Array`)
+      console.log(tripleDataframeArray[0])
+      // appending timeframe also
+      tripleDataframeArray.push(tfObject)
+      fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
+      if (err) {
+          throw err;
+        }
+      console.log(Object.keys(tripleDataframeArray));
+      console.log("JSON data is saved.");
+      });
+
+      ws.close();
+    }
+  };
   // console.log(formData.timeframes_id)
   // get the actual timeframe name based on timeframe id (one to many)
-
   pool
     .query(`SELECT * FROM timeframes WHERE id=${formData.timeframes_id};`)
     .then((result) => {
       console.log(result.rows[0].timeframe)
       timeframeEntry = result.rows[0].timeframe
       console.log(`timeframe entry: ${timeframeEntry}`)
-      frontLeg = formData.front_leg
-      console.log(`frontLeg: ${frontLeg}`)
-      midLeg = formData.middle_leg
-      backLeg = formData.back_leg
-    }).then()
+      tfObject = {"tf":timeframeEntry};
+      console.log(tfObject);
+      frontLeg = formData.front_leg;
+      console.log(typeof(frontLeg));
+      console.log(`frontLeg: ${frontLeg}`);
+      midLeg = formData.middle_leg;
+      backLeg = formData.back_leg;
+      console.log(`other legs: ${midLeg}, ${backLeg}`);
+      return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
+        console.log(successDelay);
+        frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
+        midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
+        backLegMsg = fn.chartMsg(backLeg, 300, sinceDay, now, timeframeEntry);
 
-      // ws.onmessage = function (e) {
-      //   console.log("receiving message...")
-      //   const message = JSON.parse(e.data);
-      //   const result = message["result"];
-      //   const id = message["id"];
-
-      //   if(result){
-      //     if(id === 100){
-      //       const frontLegObject = {
-      //         leg: frontLeg, 
-      //         ticks: result["ticks"],
-      //         close: result["close"],
-      //       }
-      //       tripleDataframeArray.push(frontLegObject);
-      //       console.log(`pushed ${frontLeg} onto tripleDataframeArray`)      
-      //     } else if(id === 200){
-      //       const midLegObject = {
-      //         leg: midLeg, 
-      //         ticks: result["ticks"],
-      //         close: result["close"],
-      //       }
-      //       tripleDataframeArray.push(midLegObject);
-      //       console.log(`pushed ${midLeg} onto tripleDataframeArray`)      
-      //     } else if (id === 300){
-      //       const backLegObject = {
-      //         leg: backLeg,
-      //         ticks: result["ticks"],
-      //         close: result["close"],
-      //       }
-      //       tripleDataframeArray.push(backLegObject);
-      //       console.log(`pushed ${backLeg} onto tripleDataframeArray`)      
-      //     }
-
-      //   } else if(message["error"]){
-      //     let error_message = message['error']['message']
-      //     let error_code = message['error']['code']
-      //     console.log(`you've got a deribit websocket error: ${error_message}, code ${error_code}`)
-
-      //   } else {
-      //     console.error('websocket error')
-      //   }
-
-      //   console.log(Object.keys(tripleDataframeArray));
-
-      //   if (Object.keys(tripleDataframeArray).length === 3){
-      //     console.log(`print first item in Array`)
-      //     console.log(tripleDataframeArray[0])
-      //     // appending timeframe also
-      //     tripleDataframeArray.push(tfObject)
-      //     fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
-      //     if (err) {
-      //         throw err;
-      //     }
-      //     console.log(Object.keys(tripleDataframeArray));
-      //     console.log("JSON data is saved.");
-      //     ws.close()
-      //     });
-      //   }
-      // }
-
-      // open the websocket to Deribit
-      ws.onopen = function () {
-        console.log("opening deribit websocket connection...")
-        console.log("sending chart messages..")
-
-        let frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
-        let midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
-        let backLegMsg = fn.chartMsg(backLeg, 300, sinceDay, now, timeframeEntry);
-
-        console.log(frontLegMsg)
-        console.log(midLegMsg)
-        console.log(backLegMsg)
-
-        ws.send(JSON.stringify(frontLegMsg));
-        ws.send(JSON.stringify(midLegMsg));
-        ws.send(JSON.stringify(backLegMsg));
-      };
-    });
-  
+        console.log(frontLegMsg);
+        console.log(midLegMsg);
+        console.log(backLegMsg);
+        return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
+          console.log(successDelay);
+          ws.send(JSON.stringify(frontLegMsg));
+          ws.send(JSON.stringify(midLegMsg));
+          ws.send(JSON.stringify(backLegMsg));       
+          return fn.printLater('delaying by 4 seconds', 4000).then((successDelay)=>{
+            console.log(successDelay);
+            console.log(`length of triple df: ${tripleDataframeArray}`);
+            const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
+            childPython.stdout.on('data', (data) => {
+              console.log('stdout output:\n');
+              dataObject = data.toString()
+              console.log(JSON.parse(dataObject)); //works for output_string, not json df
+              response.send(dataObject);
+            });
+            childPython.stderr.on('data', (data) => {
+              console.error(`stderr error: ${data.toString()}`);
+            });
+          })
+        })
+      })
+    }).catch((error) => console.log(error.stack)
+    );
 });
 // app.get('/note/:id', (request, response) => {
 //   console.log('indiv note request came in');

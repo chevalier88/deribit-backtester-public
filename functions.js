@@ -9,7 +9,7 @@ function toTimestamp(year, month, day) {
 }
 
 function chartMsg(leg, id, sinceDay, now, tf){
-  return {
+  const msgResult = {
     "jsonrpc" : "2.0",
     "id" : id,
     "method" : "public/get_tradingview_chart_data",
@@ -20,21 +20,17 @@ function chartMsg(leg, id, sinceDay, now, tf){
       "resolution" : tf
     }
   };
-} 
 
-function connect() {
-    return new Promise(function(resolve, reject) {
-      const ws = new WebSocket('wss://www.deribit.com/ws/api/v2');
-
-      ws.onopen = function() {
-          resolve(server);
-      };
-      ws.onerror = function(err) {
-          reject(err);
-      };
-    });
+  return msgResult;
 }
 
+const printLater = (message, delay) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    console.log(`*** ${message} ***`);
+    resolve('delay done.');
+  }, delay);
+});
+
 module.exports = {
-  toTimestamp, chartMsg, connect
+  toTimestamp, chartMsg, printLater
 };
