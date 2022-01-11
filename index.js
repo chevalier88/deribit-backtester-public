@@ -38,9 +38,6 @@ let frontLegMsg;
 let midLegMsg;
 let backLegMsg;
 
-let tripleDataframeArray = [];
-let dataObject;
-
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
@@ -201,7 +198,8 @@ app.post('/backtest', (request, response) => {
   // instantiate the websocket
   const ws = new WebSocket('wss://www.deribit.com/ws/api/v2');
   console.log(ws)
-
+  let tripleDataframeArray = [];
+  let dataObject;
   const now = Date.now();
 
   ws.onmessage = function (e) {
@@ -251,15 +249,8 @@ app.post('/backtest', (request, response) => {
     if (Object.keys(tripleDataframeArray).length === 3){
       console.log(`print first item in Array`)
       console.log(tripleDataframeArray[0])
-      // appending timeframe also
+      // appending timeframe also after first 3 legs are in
       tripleDataframeArray.push(tfObject)
-      fs.writeFile('./test.json', JSON.stringify(tripleDataframeArray), (err) => {
-      if (err) {
-          throw err;
-        }
-      console.log(Object.keys(tripleDataframeArray));
-      console.log("JSON data is saved.");
-      });
 
       ws.close();
     }
@@ -300,10 +291,28 @@ app.post('/backtest', (request, response) => {
             const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
             childPython.stdout.on('data', (data) => {
               console.log('stdout output:\n');
-              dataObject = data.toString()
-              console.log(JSON.parse(dataObject)); //works for output_string, not json df
-              response.send(dataObject);
-            });
+              dataString = data.toString()
+              console.log(JSON.parse(dataString)); //works for output_string, not json df
+              dataObject = JSON.parse(dataString);
+              // response.send(dataObject);
+              console.log('will write json parser here for chart.js');
+              console.log('printing dataObject...')
+              console.log(dataObject);
+              console.log(dataObject.backtest_created_timestamp)
+              let fileString = `./${dataObject.backtest_created_timestamp}.json`
+
+              fs.writeFile(fileString, JSON.stringify(tripleDataframeArray), (err) => {
+                if (err) {
+                    throw err;
+                  }
+                console.log(Object.keys(tripleDataframeArray));
+                console.log("JSON data is saved.");
+              });
+              return fn.printLater('delaying by 2 second', 2000).then((successDelay)=>{
+                console.log(successDelay);
+                response.render('backtestIndex');
+                });
+              });
             childPython.stderr.on('data', (data) => {
               console.error(`stderr error: ${data.toString()}`);
             });
