@@ -1,6 +1,5 @@
 import json, sys
 from os import close
-sys.path.append(".")
 import pandas as pd
 import time
 from datetime import datetime
@@ -8,8 +7,12 @@ from datetime import datetime
 import numpy as np
 import math
 from pandas.plotting import register_matplotlib_converters
-from johansen import coint_johansen
 import warnings
+
+sys.path.append("../")
+# sys.path.insert(1, 'users/grahamlim/Documents/Documents-iMac/my_algos/config_py_files')
+from config_py_files import johansen as joh
+# import johansen.coint_johansen 
 
 # df_object = json.loads(sys.argv[1])
 df_object = pd.read_json(sys.argv[1])
@@ -86,7 +89,7 @@ def johansen_test(df):
     # Run Johansen test on the whole dataset
 
     # Store the results of Johansen test after applying on the dataframe
-    result = coint_johansen(df, 0, 1)
+    result = joh.coint_johansen(df, 0, 1)
 
     # Print trace statistics and eigen statistics
     # print ('--------------------------------------------------')
@@ -110,7 +113,7 @@ def johansen_test(df):
     # Store the results of Johansen test
     half_df_length = len(df)/2
     lookback_johansen = int(round(half_df_length)) #set to half of whatever dataframe, always.
-    result = coint_johansen(df[:lookback_johansen], 0, 1)
+    result = joh.coint_johansen(df[:lookback_johansen], 0, 1)
 
     # Store the value of eigenvector. Using this eigenvector, you can create the spread
     ev = result.evec
