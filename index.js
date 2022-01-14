@@ -386,7 +386,11 @@ app.post('/backtest', (request, response) => {
                     console.log(parsedCumret);
 
                     let cumretKeys = Object.keys(parsedCumret);
+                    console.log('printing cumretKeys...');
+                    console.log(cumretKeys);
                     let cumretValues = Object.values(parsedCumret);
+                    console.log('printing cumretValues...');
+                    console.log(cumretValues);
                     let cumretArray = [];
 
                     for (let i = 0; i < cumretKeys.length; i++) {
@@ -420,51 +424,51 @@ app.post('/backtest', (request, response) => {
 
       // prep to send websocket messages to deribit server
 
-// app.get('/note/:id', (request, response) => {
-//   console.log('indiv note request came in');
+app.get('/backtest/:id', (request, response) => {
+  console.log('indiv backtest request came in');
 
-//   console.log(request.params.id);
+  console.log(request.params.id);
 
-//   // const getBirdNoteIndexQuery = `
-//   // SELECT * FROM birds WHERE id=${request.params.id};`;
+  // const getBirdNoteIndexQuery = `
+  // SELECT * FROM birds WHERE id=${request.params.id};`;
 
-//   // inner join to get all the deets from the 3 tables
-//   const getBirdNoteIndexQuery = `
-//   SELECT birds.id, birds.flock_size, birds.date, birds.appearance, birds.behaviour, users.email, species.name 
-//   AS species 
-//   FROM birds 
-//   INNER JOIN users 
-//   ON birds.user_id = users.id 
-//   INNER JOIN species 
-//   ON species.id = birds.species_id 
-//   WHERE birds.id = ${request.params.id}`;
-//   console.log(getBirdNoteIndexQuery);
+  // inner join to get all the deets from the 3 tables
+  const getBirdNoteIndexQuery = `
+  SELECT birds.id, birds.flock_size, birds.date, birds.appearance, birds.behaviour, users.email, species.name 
+  AS species 
+  FROM birds 
+  INNER JOIN users 
+  ON birds.user_id = users.id 
+  INNER JOIN species 
+  ON species.id = birds.species_id 
+  WHERE birds.id = ${request.params.id}`;
+  console.log(getBirdNoteIndexQuery);
 
-//   const whenDoneWithQuery = (error, result) => {
-//     if (error) {
-//       console.log('Error executing query', error.stack);
-//       response.status(503).send(result.rows);
-//       return;
-//     }
-//     console.log(result.rows[0]);
-//     const content = {
-//       noteIndex: {
-//         id: result.rows[0].id,
-//         date: result.rows[0].date,
-//         flock_size: result.rows[0].flock_size,
-//         appearance: result.rows[0].appearance,
-//         species: result.rows[0].species,
-//         email: result.rows[0].email,
-//       },
-//     };
-//     console.log(content);
-//     // response.send(result.rows[0]);
-//     response.render('noteIndex', content);
-//   };
+  const whenDoneWithQuery = (error, result) => {
+    if (error) {
+      console.log('Error executing query', error.stack);
+      response.status(503).send(result.rows);
+      return;
+    }
+    console.log(result.rows[0]);
+    const content = {
+      noteIndex: {
+        id: result.rows[0].id,
+        date: result.rows[0].date,
+        flock_size: result.rows[0].flock_size,
+        appearance: result.rows[0].appearance,
+        species: result.rows[0].species,
+        email: result.rows[0].email,
+      },
+    };
+    console.log(content);
+    // response.send(result.rows[0]);
+    response.render('noteIndex', content);
+  };
 
-//   // Query using pg.Pool instead of pg.Client
-//   pool.query(getBirdNoteIndexQuery, whenDoneWithQuery);
-// });
+  // Query using pg.Pool instead of pg.Client
+  pool.query(getBirdNoteIndexQuery, whenDoneWithQuery);
+});
 
 // app.get('/', (request, response) => {
 //   console.log('indiv note request came in');

@@ -7,9 +7,6 @@ CREATE TABLE IF NOT EXISTS "users" (
 CREATE TABLE IF NOT EXISTS "backtests" (
   "id" SERIAL PRIMARY KEY,
   "user_id" INTEGER,
-  "front_leg" TEXT,
-  "middle_leg" TEXT,
-  "back_leg" TEXT,
   "timeframe_id" INTEGER,
   "ROI" DECIMAL,
   "length" INTEGER,
@@ -18,7 +15,7 @@ CREATE TABLE IF NOT EXISTS "backtests" (
   "front_vector" DECIMAL,
   "middle_vector" DECIMAL,
   "back_vector" DECIMAL,
-  "created_timestamp" DATE,
+  "created_timestamp" TEXT,
   "starting_balance" DECIMAL,
   "ending_balance" DECIMAL
 );
@@ -26,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "backtests" (
 CREATE TABLE IF NOT EXISTS "backtest_cumret_timeseries" (
   "id" SERIAL PRIMARY KEY,
   "backtest_id" INTEGER,
-  "timestamp" DATE,
+  "timestamp" TEXT,
   "cumret" DECIMAL
 );
 
