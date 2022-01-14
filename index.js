@@ -431,16 +431,22 @@ app.get('/backtest/:id', (request, response) => {
   // inner join to get all the deets from the 3 tables:
   // backtests, instruments, timeframes
   const getTestQuery = `
-  SELECT backtests.id, backtests.ROI, backtests.length, backtests.lookback, backtests.behaviour, users.email, species.name 
-  AS species 
-  FROM birds 
-  INNER JOIN users 
-  ON birds.user_id = users.id 
-  INNER JOIN species 
-  ON species.id = birds.species_id 
-  WHERE birds.id = ${request.params.id}`;
+  SELECT backtests.id, backtests.ROI, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe, instruments.name
+  AS instruments 
+  FROM backtests 
+  INNER JOIN timeframes 
+  ON backtests.timeframe_id = timeframes.id 
+  INNER JOIN instruments
+  ON instruments.id = backtests.species_id 
+  WHERE backtests.id = ${request.params.id}`;
   console.log(getBirdNoteIndexQuery);
 
+
+  // SELECT categories.id, categories.name, recipe_categories.category_id, recipe_categories.recipe_id
+  // FROM categories
+  // INNER JOIN recipe_categories
+  // ON recipe_categories.category_id = categories.id
+  // WHERE recipe_categories.recipe_id = 1;
   const whenDoneWithQuery = (error, result) => {
     if (error) {
       console.log('Error executing query', error.stack);
