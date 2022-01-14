@@ -170,23 +170,26 @@ app.get('/logout', (request, response) => {
 });
 
 app.get('/backtest', (request, response) => {
-  console.log('backtest request came in!');
+  console.log('backtest get form request came in!');
   console.log(`user ID now ${request.cookies.userId}`);
-  const getBacktestFormQuery = (error, result) => {
-    if (error) {
-      console.log('Error executing query', error.stack);
-      response.status(503).send(result.rows);
-    } else {
-      const data = {
-        timeframes: result.rows,
-      };
-      console.log(result.rows);
-      response.render('backtest', data);
-    }
-  };
 
-  // Query using pg.Pool instead of pg.Client
-  pool.query('SELECT * FROM timeframes', getBacktestFormQuery);
+  let data;
+  let timeframesData;
+  // Query using pg.Pool 
+  pool
+    .query('SELECT * FROM timeframes')
+    .then((result) =>{
+      console.log(result.rows);
+      timeframesData = result.rows;
+      return pool.query('SELECT * FROM instruments')
+    }).then((result2)=>{
+      console.log(result2.rows);
+      data = {
+        timeframes: timeframesData,
+        instruments: result2.rows,
+      };
+      response.render('backtest', data);
+    }).catch((error) => console.log(error.stack));
 });
 
 app.post('/backtest', (request, response) => {
@@ -261,89 +264,96 @@ app.post('/backtest', (request, response) => {
   pool
     .query(`SELECT * FROM timeframes WHERE id=${formData.timeframes_id};`)
     .then((result) => {
-      console.log(result.rows[0].timeframe)
-      timeframeEntry = result.rows[0].timeframe
-      console.log(`timeframe entry: ${timeframeEntry}`)
+      console.log(result.rows[0].timeframe);
+      timeframeEntry = result.rows[0].timeframe;
+      console.log(`timeframe entry ID: ${formData.timeframes_id}`);
+      console.log(`timeframe entry: ${timeframeEntry}`);
 
       // prepare timeframe object for eventual appending
       tfObject = {"tf":timeframeEntry};
       console.log(tfObject);
+      return pool.query(
+        `SELECT * FROM instruments WHERE id in 
+        (${formData.instruments_id[0]}, 
+          ${formData.instruments_id[1]}, 
+          ${formData.instruments_id[2]})`
+        );
+    }).then((result)=> {
+        frontLeg = result.rows[0].name;
+        console.log(typeof(frontLeg));
+        console.log(`frontLeg: ${frontLeg}`);
+        midLeg = result.rows[1].name;
+        backLeg = result.rows[2].name;
+        console.log(`other legs: ${midLeg}, ${backLeg}`);
+        return fn.printLater('delaying by 2 seconds', 2000)}).then((successDelay)=>{
+          console.log(successDelay);
+          frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
+          midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
+          backLegMsg = fn.chartMsg(backLeg, 300, sinceDay, now, timeframeEntry);
 
+          console.log(frontLegMsg);
+          console.log(midLegMsg);
+          console.log(backLegMsg);
+          return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
+            console.log(successDelay);
+
+            // after delay, actually send the messages 
+            ws.send(JSON.stringify(frontLegMsg));
+            ws.send(JSON.stringify(midLegMsg));
+            ws.send(JSON.stringify(backLegMsg));       
+            return fn.printLater('delaying by 4 seconds', 4000).then((successDelay)=>{
+              // after processing the messages received, send to the python script
+              // parse the JSON data coming back from the python script 
+              console.log(successDelay);
+              console.log(`length of triple df: ${tripleDataframeArray}`);
+              const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
+              childPython.stdout.on('data', (data) => {
+                console.log('stdout output:\n');
+                dataString = data.toString()
+                console.log(JSON.parse(dataString)); //works for output_string, not json df
+                dataObject = JSON.parse(dataString);
+                console.log('will write json parser here for chart.js');
+                console.log('printing dataObject...')
+                console.log(dataObject);
+                console.log(dataObject.backtest_created_timestamp)
+                let fileString = `./${dataObject.backtest_created_timestamp}.json`
+
+                // save the JSON backtest results for later testing
+                fs.writeFile(fileString, JSON.stringify(dataObject), (err) => {
+                  if (err) {
+                      throw err;
+                    }
+                  console.log(Object.keys(dataObject));
+                  console.log("JSON data is saved.");
+                });
+
+                // the python backtester script will also build cumulative returns in a json file. this can be appended also into PG
+                // so we read the file and parse it accordingly. 
+                let cumretFilestring = `./data/${dataObject.backtest_created_timestamp}_cumret.json`
+                let rawCumretData = fs.readFileSync(cumretFilestring);
+                let parsedCumret = JSON.parse(rawCumretData);
+
+                console.log('printing cumulative returns across timeseries...')
+                console.log(parsedCumret);
+
+                // render the backtestIndex ejs file
+                return fn.printLater('delaying by 2 second', 2000).then((successDelay)=>{
+                  console.log(successDelay);
+                  // response.render('backtestIndex');
+                  });
+                });
+              childPython.stderr.on('data', (data) => {
+                console.error(`stderr error: ${data.toString()}`);
+              });
+            })
+        })
+      }).catch((error) => console.log(error.stack));
+})
       // get legs
-      frontLeg = formData.front_leg;
-      console.log(typeof(frontLeg));
-      console.log(`frontLeg: ${frontLeg}`);
-      midLeg = formData.middle_leg;
-      backLeg = formData.back_leg;
-      console.log(`other legs: ${midLeg}, ${backLeg}`);
+
 
       // prep to send websocket messages to deribit server
-      return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
-        console.log(successDelay);
-        frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
-        midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
-        backLegMsg = fn.chartMsg(backLeg, 300, sinceDay, now, timeframeEntry);
 
-        console.log(frontLegMsg);
-        console.log(midLegMsg);
-        console.log(backLegMsg);
-        return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
-          console.log(successDelay);
-
-          // after delay, actually send the messages 
-          ws.send(JSON.stringify(frontLegMsg));
-          ws.send(JSON.stringify(midLegMsg));
-          ws.send(JSON.stringify(backLegMsg));       
-          return fn.printLater('delaying by 4 seconds', 4000).then((successDelay)=>{
-            // after processing the messages received, send to the python script
-            // parse the JSON data coming back from the python script 
-            console.log(successDelay);
-            console.log(`length of triple df: ${tripleDataframeArray}`);
-            const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
-            childPython.stdout.on('data', (data) => {
-              console.log('stdout output:\n');
-              dataString = data.toString()
-              console.log(JSON.parse(dataString)); //works for output_string, not json df
-              dataObject = JSON.parse(dataString);
-              console.log('will write json parser here for chart.js');
-              console.log('printing dataObject...')
-              console.log(dataObject);
-              console.log(dataObject.backtest_created_timestamp)
-              let fileString = `./${dataObject.backtest_created_timestamp}.json`
-
-              // save the JSON backtest results for later testing
-              fs.writeFile(fileString, JSON.stringify(dataObject), (err) => {
-                if (err) {
-                    throw err;
-                  }
-                console.log(Object.keys(dataObject));
-                console.log("JSON data is saved.");
-              });
-
-              // the python backtester script will also build cumulative returns in a json file. this can be appended also into PG
-              // so we read the file and parse it accordingly. 
-              let cumretFilestring = `./data/${dataObject.backtest_created_timestamp}_cumret.json`
-              let rawCumretData = fs.readFileSync(cumretFilestring);
-              let parsedCumret = JSON.parse(rawCumretData);
-
-              console.log('printing cumulative returns across timeseries...')
-              console.log(parsedCumret);
-
-              // render the backtestIndex ejs file
-              return fn.printLater('delaying by 2 second', 2000).then((successDelay)=>{
-                console.log(successDelay);
-                response.render('backtestIndex');
-                });
-              });
-            childPython.stderr.on('data', (data) => {
-              console.error(`stderr error: ${data.toString()}`);
-            });
-          })
-        })
-      })
-    }).catch((error) => console.log(error.stack)
-    );
-});
 // app.get('/note/:id', (request, response) => {
 //   console.log('indiv note request came in');
 

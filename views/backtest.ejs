@@ -65,46 +65,50 @@
         </div>
         <div class="row">
           <div class="form-group col-sm-4 col-md-4">
-            <label for="front_leg">Front Leg</label>
-            <input
-              type="text"
-              class="form-control"
-              id="front_leg"
-              name="front_leg"
-              placeholder="ETH-24JUN22"
-              value="ETH-24JUN22"
-              required
-            />
-          </div>
-          <div class="form-group col-sm-4 col-md-4">
             <div class="col">
               <div class="col justify-content-start">
-                <label for="middle_leg">Middle Leg</label>
-                <input
-                  type="text"
+                <label for="timeframes_id">Front Leg: </label>
+                <select
                   class="form-control"
-                  id="middle_leg"
-                  name="middle_leg"
-                  placeholder="ETH-25MAR22"
-                  value="ETH-25MAR22"
-                  required
-                />
+                  name="instruments_id"
+                  id="instruments_id"
+                >
+                  <% instruments.forEach((type) => { %>
+                  <option value="<%= type.id %>"><%= type.name %></option>
+                  <% }) %>
+                </select>
               </div>
             </div>
           </div>
           <div class="form-group col-sm-4 col-md-4">
             <div class="col">
               <div class="col justify-content-start">
-                <label for="middle_leg">Back Leg</label>
-                <input
-                  type="text"
+                <label for="timeframes_id">Middle Leg: </label>
+                <select
                   class="form-control"
-                  id="back_leg"
-                  name="back_leg"
-                  placeholder="BTC-25MAR22"
-                  value="BTC-25MAR22"
-                  required
-                />
+                  name="instruments_id"
+                  id="instruments_id"
+                >
+                  <% instruments.forEach((type) => { %>
+                  <option value="<%= type.id %>"><%= type.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group col-sm-4 col-md-4">
+            <div class="col">
+              <div class="col justify-content-start">
+                <label for="timeframes_id">Back Leg: </label>
+                <select
+                  class="form-control"
+                  name="instruments_id"
+                  id="instruments_id"
+                >
+                  <% instruments.forEach((type) => { %>
+                  <option value="<%= type.id %>"><%= type.name %></option>
+                  <% }) %>
+                </select>
               </div>
             </div>
           </div>
