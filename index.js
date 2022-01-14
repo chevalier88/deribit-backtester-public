@@ -9,8 +9,11 @@ const cookieParser= require('cookie-parser');
 const { time } = require('console');
 const fn = require('./functions.js');
 
+const format = require('pg-format');
+
 // deribit websocket client
 const WebSocket = require('ws');
+const { parse } = require('path');
 
 // Initialise DB connection
 const { Pool } = pg;
@@ -359,13 +362,10 @@ app.post('/backtest', (request, response) => {
                   `;
                   console.log(insertBacktestString);
                   return pool.query(insertBacktestString);
-                  // response.render('backtestIndex');
-
                 }).then((result) =>{
-                  console.log('printing result.rows...');
-                  console.log(result.rows);
-                  console.log('printing result.rows[0] ...');
-                  console.log(result.rows[0]);
+
+                  // insert the data into the backtests_instruments bridging table.
+
                   const backtestID = result.rows[0].id;
                   console.log(backtestID);
                   console.log('checking formdata first instruments_id again...')
@@ -382,16 +382,39 @@ app.post('/backtest', (request, response) => {
                   return results.then((arrayOfResults) =>{
                     console.log('insertions into backtest_instruments done');
                     console.log(arrayOfResults);
-                  })
-                })
+                    // response.render('backtestIndex');
+                    console.log(parsedCumret);
+
+                    let cumretKeys = Object.keys(parsedCumret);
+                    let cumretValues = Object.values(parsedCumret);
+                    let cumretArray = [];
+
+                    for (let i = 0; i < cumretKeys.length; i++) {
+                      for (let j = 0; j < cumretValues.length; j++) {
+                        let singleRow = [backtestID, cumretKeys[i], cumretValues[j]];
+                        cumretArray.push(singleRow);
+                      }
+                    }
+                    console.log('printing cumretArray...');
+                    console.log(cumretArray);
+
+                    // derived from https://stackoverflow.com/questions/34990186/how-do-i-properly-insert-multiple-rows-into-pg-with-node-postgres
+                    // requires another node module: https://www.npmjs.com/package/pg-format
+
+                    return pool.query(format('INSERT INTO backtest_cumret_timeseries ("backtest_id", "timestamp", "cumret") VALUES %L', cumretArray),[], (err, result)=>{
+                      console.log(err);
+                      console.log(result);
+                    });
+                  });
+                });
               });
               childPython.stderr.on('data', (data) => {
                 console.error(`stderr error: ${data.toString()}`);
               });
-            })
-          })
+            });
+          });
         }).catch((error) => console.log(error.stack));
-})
+});
       // get legs
 
 
