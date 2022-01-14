@@ -37,6 +37,8 @@ let backLeg;
 let frontLegMsg;
 let midLegMsg;
 let backLegMsg;
+// let backtestID;
+
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -75,6 +77,7 @@ app.post('/signup', (request, response) => {
 
   const { email } = formData;
   const { password } = formData;
+  const cookieUserId = Number(request.cookies.userId);
 
   const postSignupFormQuery = `
   INSERT INTO users (email, password)
@@ -194,16 +197,24 @@ app.get('/backtest', (request, response) => {
 
 app.post('/backtest', (request, response) => {
   console.log('note form post request came in');
+
+  // get the formData
   const formData = request.body;
   console.log('printing formData...');
   console.log(formData);
+
+  // get user id cookie
+  const cookieUserId = Number(request.cookies.userId);
+
   
   // instantiate the websocket
   const ws = new WebSocket('wss://www.deribit.com/ws/api/v2');
   console.log(ws)
   let tripleDataframeArray = [];
   let dataObject;
+  let endingBalance;
   const now = Date.now();
+  // let createdTimestamp;
 
   // provide processing rules for what to do upon websocket message received
   ws.onmessage = function (e) {
@@ -285,7 +296,8 @@ app.post('/backtest', (request, response) => {
         midLeg = result.rows[1].name;
         backLeg = result.rows[2].name;
         console.log(`other legs: ${midLeg}, ${backLeg}`);
-        return fn.printLater('delaying by 2 seconds', 2000)}).then((successDelay)=>{
+        return fn.printLater('delaying by 2 seconds', 2000)
+      }).then((successDelay)=>{
           console.log(successDelay);
           frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
           midLegMsg = fn.chartMsg(midLeg, 200, sinceDay, now, timeframeEntry);
@@ -339,15 +351,40 @@ app.post('/backtest', (request, response) => {
                 // render the backtestIndex ejs file
                 return fn.printLater('delaying by 2 second', 2000).then((successDelay)=>{
                   console.log(successDelay);
+
+                  //calculate ending balance
+                  endingBalance = formData.starting_balance*dataObject.ROI;
+                  console.log(`endingBalance: ${endingBalance}`);
+                  let insertBacktestString = `INSERT INTO backtests ("user_id", "timeframe_id", "ROI", "length", "lookback", "std_dev", "front_vector", "middle_vector", "back_vector", "created_timestamp", "starting_balance", "ending_balance") VALUES (${cookieUserId}, ${formData.timeframes_id}, ${dataObject.ROI}, ${dataObject.length}, ${dataObject.lookback}, ${dataObject.std_dev}, ${dataObject.front_vector}, ${dataObject.middle_vector}, ${dataObject.back_vector}, '${dataObject.backtest_created_timestamp}', ${formData.starting_balance}, ${endingBalance}) returning id;
+                  `;
+                  console.log(insertBacktestString);
+                  return pool.query(insertBacktestString);
                   // response.render('backtestIndex');
-                  });
-                });
+                }).then((result) =>{
+                  console.log('printing result.rows...');
+                  console.log(result.rows);
+                  console.log('printing result.rows[0] ...');
+                  console.log(result.rows[0]);
+                  const backtestID = result.rows[0].id;
+                  console.log(backtestID);
+                  // have to use promise.all because multiple pool.query commands don't work well in for loops
+                  const results = Promise.all([
+                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[0]}`),
+                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[1]}`),
+                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[2]}`),
+                  ]);
+                  
+                  results.then((allResults)=>{
+                    console.log(allResults);
+                  })
+                })
+              });
               childPython.stderr.on('data', (data) => {
                 console.error(`stderr error: ${data.toString()}`);
               });
             })
-        })
-      }).catch((error) => console.log(error.stack));
+          })
+        }).catch((error) => console.log(error.stack));
 })
       // get legs
 
