@@ -202,6 +202,7 @@ app.post('/backtest', (request, response) => {
   let dataObject;
   const now = Date.now();
 
+  // provide processing rules for what to do upon websocket message received
   ws.onmessage = function (e) {
     console.log("receiving message...");
     const message = JSON.parse(e.data);
@@ -263,14 +264,20 @@ app.post('/backtest', (request, response) => {
       console.log(result.rows[0].timeframe)
       timeframeEntry = result.rows[0].timeframe
       console.log(`timeframe entry: ${timeframeEntry}`)
+
+      // prepare timeframe object for eventual appending
       tfObject = {"tf":timeframeEntry};
       console.log(tfObject);
+
+      // get legs
       frontLeg = formData.front_leg;
       console.log(typeof(frontLeg));
       console.log(`frontLeg: ${frontLeg}`);
       midLeg = formData.middle_leg;
       backLeg = formData.back_leg;
       console.log(`other legs: ${midLeg}, ${backLeg}`);
+
+      // prep to send websocket messages to deribit server
       return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
         console.log(successDelay);
         frontLegMsg = fn.chartMsg(frontLeg, 100, sinceDay, now, timeframeEntry);
@@ -282,10 +289,14 @@ app.post('/backtest', (request, response) => {
         console.log(backLegMsg);
         return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
           console.log(successDelay);
+
+          // after delay, actually send the messages 
           ws.send(JSON.stringify(frontLegMsg));
           ws.send(JSON.stringify(midLegMsg));
           ws.send(JSON.stringify(backLegMsg));       
           return fn.printLater('delaying by 4 seconds', 4000).then((successDelay)=>{
+            // after processing the messages received, send to the python script
+            // parse the JSON data coming back from the python script 
             console.log(successDelay);
             console.log(`length of triple df: ${tripleDataframeArray}`);
             const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
@@ -294,20 +305,31 @@ app.post('/backtest', (request, response) => {
               dataString = data.toString()
               console.log(JSON.parse(dataString)); //works for output_string, not json df
               dataObject = JSON.parse(dataString);
-              // response.send(dataObject);
               console.log('will write json parser here for chart.js');
               console.log('printing dataObject...')
               console.log(dataObject);
               console.log(dataObject.backtest_created_timestamp)
               let fileString = `./${dataObject.backtest_created_timestamp}.json`
 
-              fs.writeFile(fileString, JSON.stringify(tripleDataframeArray), (err) => {
+              // save the JSON backtest results for later testing
+              fs.writeFile(fileString, JSON.stringify(dataObject), (err) => {
                 if (err) {
                     throw err;
                   }
-                console.log(Object.keys(tripleDataframeArray));
+                console.log(Object.keys(dataObject));
                 console.log("JSON data is saved.");
               });
+
+              // the python backtester script will also build cumulative returns in a json file. this can be appended also into PG
+              // so we read the file and parse it accordingly. 
+              let cumretFilestring = `./data/${dataObject.backtest_created_timestamp}_cumret.json`
+              let rawCumretData = fs.readFileSync(cumretFilestring);
+              let parsedCumret = JSON.parse(rawCumretData);
+
+              console.log('printing cumulative returns across timeseries...')
+              console.log(parsedCumret);
+
+              // render the backtestIndex ejs file
               return fn.printLater('delaying by 2 second', 2000).then((successDelay)=>{
                 console.log(successDelay);
                 response.render('backtestIndex');

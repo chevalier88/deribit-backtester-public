@@ -268,7 +268,7 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "front_vector": front_vector,
         "middle_vector": middle_vector,
         "back_vector": back_vector,
-        "backtest_created_timestamp": f'{now}_TF{tf}',
+        "backtest_created_timestamp": f'{now}_{tf}',
     }
     # print(df.head())
 
@@ -300,7 +300,7 @@ nth_factor = int(df_length/100)-1
 
 df = exportable_df.iloc[::nth_factor]
 
-json_df = df.to_json(f'./data/{now}_{tf}_running.json', orient = 'columns')
+json_df = df.to_json(f'./data/{now}_{tf}_cumret.json', orient = 'columns')
 # df.to_csv(f'./data/{now}_{tf}_running.csv')
 
 # trying ot read exported json file for sys.stdout.write sending
