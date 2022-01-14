@@ -428,9 +428,10 @@ app.get('/backtest/:id', (request, response) => {
   // const getBirdNoteIndexQuery = `
   // SELECT * FROM birds WHERE id=${request.params.id};`;
 
-  // inner join to get all the deets from the 3 tables
-  const getBirdNoteIndexQuery = `
-  SELECT birds.id, birds.flock_size, birds.date, birds.appearance, birds.behaviour, users.email, species.name 
+  // inner join to get all the deets from the 3 tables:
+  // backtests, instruments, timeframes
+  const getTestQuery = `
+  SELECT backtests.id, backtests.ROI, backtests.length, backtests.lookback, backtests.behaviour, users.email, species.name 
   AS species 
   FROM birds 
   INNER JOIN users 
