@@ -123,12 +123,16 @@ let cumretArray = [];
 
 let backtestID = 1;
 // need to transform into array of arrays
-for (let i = 0; i < cumretKeys.length; i++) {
-  for (let j = 0; j < cumretValues.length; j++) {
-    let singleRow = [backtestID, cumretKeys[i], cumretValues[j]];
-    cumretArray.push(singleRow);
-  }
-}
+// for (let i = 0; i < cumretKeys.length; i++) {
+//   for (let j = 0; j < cumretValues.length; j++) {
+//     let singleRow = [backtestID, cumretKeys[i], cumretValues[j]];
+//     cumretArray.push(singleRow);
+//   }
+// }
+
+let zipped = cumretKeys.map((x, i) => [backtestID, x, cumretValues[i]]);
+console.log(zipped);
+console.log(zipped.length);
 
 console.log('printing cumretArray...')
 console.log(cumretArray);

@@ -391,15 +391,11 @@ app.post('/backtest', (request, response) => {
                     let cumretValues = Object.values(parsedCumret);
                     console.log('printing cumretValues...');
                     console.log(cumretValues);
-                    let cumretArray = [];
+                    let cumretArray;
 
-                    for (let i = 0; i < cumretKeys.length; i++) {
-                      for (let j = 0; j < cumretValues.length; j++) {
-                        let singleRow = [backtestID, cumretKeys[i], cumretValues[j]];
-                        cumretArray.push(singleRow);
-                      }
-                    }
-                    console.log('printing cumretArray...');
+                    cumretArray = cumretKeys.map((x, i) => [backtestID, x, cumretValues[i]]);
+
+                    console.log('printing cumretArray...')
                     console.log(cumretArray);
 
                     // derived from https://stackoverflow.com/questions/34990186/how-do-i-properly-insert-multiple-rows-into-pg-with-node-postgres
