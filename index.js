@@ -360,6 +360,7 @@ app.post('/backtest', (request, response) => {
                   console.log(insertBacktestString);
                   return pool.query(insertBacktestString);
                   // response.render('backtestIndex');
+
                 }).then((result) =>{
                   console.log('printing result.rows...');
                   console.log(result.rows);
@@ -367,15 +368,20 @@ app.post('/backtest', (request, response) => {
                   console.log(result.rows[0]);
                   const backtestID = result.rows[0].id;
                   console.log(backtestID);
+                  console.log('checking formdata first instruments_id again...')
+                  console.log(formData.instruments_id[0])
                   // have to use promise.all because multiple pool.query commands don't work well in for loops
                   const results = Promise.all([
-                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[0]}`),
-                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[1]}`),
-                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[2]}`),
-                  ]);
-                  
-                  results.then((allResults)=>{
+                    pool.query(`INSERT INTO backtests_instruments (backtest_id, "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[0]})`),
+                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[1]})`),
+                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[2]})`),
+                  ]).then((allResults)=>{
                     console.log(allResults);
+                  })
+
+                  return results.then((arrayOfResults) =>{
+                    console.log('insertions into backtest_instruments done');
+                    console.log(arrayOfResults);
                   })
                 })
               });
