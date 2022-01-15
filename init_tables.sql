@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS "backtests" (
   "id" SERIAL PRIMARY KEY,
   "user_id" INTEGER,
   "timeframe_id" INTEGER,
-  "ROI" DECIMAL,
+  "roi" DECIMAL,
   "length" INTEGER,
   "lookback" DECIMAL,
   "std_dev" DECIMAL,

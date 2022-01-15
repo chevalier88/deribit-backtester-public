@@ -44,7 +44,7 @@ let backLegMsg;
 
 
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
+app.use(express.static('/public'));
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 app.use(cookieParser());
@@ -358,7 +358,7 @@ app.post('/backtest', (request, response) => {
                   //calculate ending balance
                   endingBalance = formData.starting_balance*dataObject.ROI;
                   console.log(`endingBalance: ${endingBalance}`);
-                  let insertBacktestString = `INSERT INTO backtests ("user_id", "timeframe_id", "ROI", "length", "lookback", "std_dev", "front_vector", "middle_vector", "back_vector", "created_timestamp", "starting_balance", "ending_balance") VALUES (${cookieUserId}, ${formData.timeframes_id}, ${dataObject.ROI}, ${dataObject.length}, ${dataObject.lookback}, ${dataObject.std_dev}, ${dataObject.front_vector}, ${dataObject.middle_vector}, ${dataObject.back_vector}, '${dataObject.backtest_created_timestamp}', ${formData.starting_balance}, ${endingBalance}) returning id;
+                  let insertBacktestString = `INSERT INTO backtests ("user_id", "timeframe_id", "roi", "length", "lookback", "std_dev", "front_vector", "middle_vector", "back_vector", "created_timestamp", "starting_balance", "ending_balance") VALUES (${cookieUserId}, ${formData.timeframes_id}, ${dataObject.ROI}, ${dataObject.length}, ${dataObject.lookback}, ${dataObject.std_dev}, ${dataObject.front_vector}, ${dataObject.middle_vector}, ${dataObject.back_vector}, '${dataObject.backtest_created_timestamp}', ${formData.starting_balance}, ${endingBalance}) returning id;
                   `;
                   console.log(insertBacktestString);
                   return pool.query(insertBacktestString);
@@ -401,9 +401,13 @@ app.post('/backtest', (request, response) => {
                     // derived from https://stackoverflow.com/questions/34990186/how-do-i-properly-insert-multiple-rows-into-pg-with-node-postgres
                     // requires another node module: https://www.npmjs.com/package/pg-format
 
-                    return pool.query(format('INSERT INTO backtest_cumret_timeseries ("backtest_id", "timestamp", "cumret") VALUES %L', cumretArray),[], (err, result)=>{
+                    pool.query(format('INSERT INTO backtest_cumret_timeseries ("backtest_id", "timestamp", "cumret") VALUES %L', cumretArray),[], (err, result)=>{
                       console.log(err);
                       console.log(result);
+                    })
+                    return fn.printLater('delaying by 1 second', 1000).then((successDelay)=>{
+                      console.log(successDelay);
+                      response.redirect(`backtest/${backtestID}`);
                     });
                   });
                 });
@@ -430,47 +434,33 @@ app.get('/backtest/:id', (request, response) => {
 
   // inner join to get all the deets from the 3 tables:
   // backtests, instruments, timeframes
-  const getTestQuery = `
-  SELECT backtests.id, backtests.ROI, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe, instruments.name
-  AS instruments 
-  FROM backtests 
+  const testTFQuery = `
+  SELECT backtests.id, backtests.roi, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe
+  FROM backtests
   INNER JOIN timeframes 
   ON backtests.timeframe_id = timeframes.id 
-  INNER JOIN instruments
-  ON instruments.id = backtests.species_id 
   WHERE backtests.id = ${request.params.id}`;
-  console.log(getBirdNoteIndexQuery);
+  console.log(testTFQuery);
+
+  const testInstrumentQuery = `
+  SELECT backtests_instruments.id, backtests_instruments.instrument_id, instruments.id, instruments.name
+  FROM backtests_instruments
+  INNER JOIN instruments
+  ON instruments.id = backtests_instruments.instrument_id
+  WHERE backtests_instruments.backtest_id = ${request.params.id};
+  `;
+  console.log(testInstrumentQuery);
 
 
-  // SELECT categories.id, categories.name, recipe_categories.category_id, recipe_categories.recipe_id
-  // FROM categories
-  // INNER JOIN recipe_categories
-  // ON recipe_categories.category_id = categories.id
-  // WHERE recipe_categories.recipe_id = 1;
-  const whenDoneWithQuery = (error, result) => {
-    if (error) {
-      console.log('Error executing query', error.stack);
-      response.status(503).send(result.rows);
-      return;
-    }
-    console.log(result.rows[0]);
-    const content = {
-      noteIndex: {
-        id: result.rows[0].id,
-        date: result.rows[0].date,
-        flock_size: result.rows[0].flock_size,
-        appearance: result.rows[0].appearance,
-        species: result.rows[0].species,
-        email: result.rows[0].email,
-      },
-    };
-    console.log(content);
-    // response.send(result.rows[0]);
-    response.render('noteIndex', content);
-  };
+  const testTimeseriesQuery = `
+  SELECT * FROM backtest_cumret_timeseries WHERE backtest_cumret_timeseries.backtest_id = ${request.params.id};
+  `;
+  console.log(testTimeseriesQuery);
 
-  // Query using pg.Pool instead of pg.Client
-  pool.query(getBirdNoteIndexQuery, whenDoneWithQuery);
+  // pool
+  //   .query(testTFQuery)
+
+  response.render('backtestIndex');
 });
 
 // app.get('/', (request, response) => {
@@ -571,7 +561,7 @@ app.get('/backtest/:id', (request, response) => {
 
 //   // inner join to get all the deets from the 2 tables
 //   const firstQuery = `
-//   SELECT notes_behaviour.id, notes_behaviour.behaviour_id, behaviour.id, behaviour.action
+//   SELECT notes_behaviour.id, notes_behaviour.behaviour_id, behaviour.id, behaviour.name
 //   FROM notes_behaviour
 //   INNER JOIN behaviour
 //   ON behaviour.id = notes_behaviour.behaviour_id
