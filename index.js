@@ -44,7 +44,7 @@ let backLegMsg;
 
 
 app.set('view engine', 'ejs');
-app.use(express.static('/public'));
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 app.use(cookieParser());
@@ -429,11 +429,10 @@ app.get('/backtest/:id', (request, response) => {
 
   console.log(request.params.id);
 
-  // const getBirdNoteIndexQuery = `
-  // SELECT * FROM birds WHERE id=${request.params.id};`;
-
   // inner join to get all the deets from the 3 tables:
   // backtests, instruments, timeframes
+
+  // get the timeframe with backtest metadata
   const testTFQuery = `
   SELECT backtests.id, backtests.roi, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe
   FROM backtests
@@ -442,6 +441,7 @@ app.get('/backtest/:id', (request, response) => {
   WHERE backtests.id = ${request.params.id}`;
   console.log(testTFQuery);
 
+  // get the 3 instrument legs
   const testInstrumentQuery = `
   SELECT backtests_instruments.id, backtests_instruments.instrument_id, instruments.id, instruments.name
   FROM backtests_instruments
@@ -451,16 +451,36 @@ app.get('/backtest/:id', (request, response) => {
   `;
   console.log(testInstrumentQuery);
 
-
+  // get the large timeseries data
   const testTimeseriesQuery = `
   SELECT * FROM backtest_cumret_timeseries WHERE backtest_cumret_timeseries.backtest_id = ${request.params.id};
   `;
   console.log(testTimeseriesQuery);
 
-  // pool
-  //   .query(testTFQuery)
+  pool
+    .query(testTFQuery)
+    .then((result) =>{
+      console.log(result.rows);
+      let content = {
+        mainResult:{
+          id: result.rows[0].id,
+          roi: result.rows[0].roi,
+          length: result.rows[0].length,
+          lookback: result.rows[0].lookback,
+          std_dev: result.rows[0].std_dev,
+          front_vector: result.rows[0].front_vector,
+          mid_vector: result.rows[0].mid_vector,
+          back_vector: result.rows[0].back_vector,
+          starting_balance: result.rows[0].starting_balance,
+          ending_balance: result.rows[0].ending_balance,
+          created_timestamp: result.rows[0].created_timestamp,
+          timeframe: result.rows[0].timeframe,
+        }
+      }
+      response.render('backtestIndex', content);
+    })
 
-  response.render('backtestIndex');
+  
 });
 
 // app.get('/', (request, response) => {
@@ -516,95 +536,6 @@ app.get('/backtest/:id', (request, response) => {
 //       res.redirect(`/note/${notesId}/comments`);
 //     }
 //   });
-// });
-
-// app.get('/note/:id/comments', (request, response) => {
-//   console.log('indiv note all comments request came in');
-
-//   console.log(request.params.id);
-
-//   // const getBirdNoteIndexQuery = `
-//   // SELECT * FROM birds WHERE id=${request.params.id};`;
-
-//   // inner join to get all the deets from the 3 tables
-//   const getBirdNoteIndexQuery = `
-//   SELECT * FROM comments
-//   WHERE notes_id = ${request.params.id};`;
-//   console.log(getBirdNoteIndexQuery);
-
-//   const whenDoneWithQuery = (error, result) => {
-//     if (error) {
-//       console.log('Error executing query', error.stack);
-//       response.status(503).send(result.rows);
-//       return;
-//     }
-//     const content = {
-//       index: request.params.id,
-//       allSightings: result.rows,
-//     };
-//     console.log(content);
-//     // response.send(result.rows[0]);
-//     response.render('indexAllComments', content);
-//   };
-
-//   // Query using pg.Pool instead of pg.Client
-//   pool.query(getBirdNoteIndexQuery, whenDoneWithQuery);
-// });
-
-// app.get('/note/:id/behaviours', (request, response) => {
-//   console.log('indiv note all behaviours request came in');
-
-//   console.log(request.params.id);
-
-//   // const getBirdNoteIndexQuery = `
-//   // SELECT * FROM birds WHERE id=${request.params.id};`;
-
-//   // inner join to get all the deets from the 2 tables
-//   const firstQuery = `
-//   SELECT notes_behaviour.id, notes_behaviour.behaviour_id, behaviour.id, behaviour.name
-//   FROM notes_behaviour
-//   INNER JOIN behaviour
-//   ON behaviour.id = notes_behaviour.behaviour_id
-//   WHERE notes_behaviour.notes_id = ${request.params.id};
-//   `;
-//   const whenDoneWithFirstQuery = (error, result) => {
-//     if (error) {
-//       console.log('Error executing query', error.stack);
-//       response.status(503).send(result.rows);
-//       return;
-//     }
-//     const content = {
-//       index: request.params.id,
-//       allActions: result.rows,
-//     };
-//     console.log(content);
-//     // response.send(result.rows);
-//     response.render('indexAllBehaviours', content);
-//   };
-//   pool.query(firstQuery, whenDoneWithFirstQuery);
-
-  // const getBirdNoteIndexQuery = `
-  // SELECT * FROM comments
-  // WHERE notes_id = ${request.params.id};`;
-  // console.log(getBirdNoteIndexQuery);
-
-  // const whenDoneWithQuery = (error, result) => {
-  //   if (error) {
-  //     console.log('Error executing query', error.stack);
-  //     response.status(503).send(result.rows);
-  //     return;
-  //   }
-  //   const content = {
-  //     index: request.params.id,
-  //     allSightings: result.rows,
-  //   };
-  //   console.log(content);
-  //   // response.send(result.rows[0]);
-  //   response.render('indexAllBehaviours', content);
-  // };
-
-  // // Query using pg.Pool instead of pg.Client
-  // pool.query(getBirdNoteIndexQuery, whenDoneWithQuery);
 // });
 
 app.listen(PORT);
