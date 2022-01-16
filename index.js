@@ -150,7 +150,7 @@ app.post('/login', (request, response) => {
     } else {
       // password didn't match
       // the error for password and user are the same...
-      response.status(403).send('sorry!');
+      response.redirect('/login');
     }
   });
 });
@@ -553,6 +553,25 @@ app.get('/backtest/:id', (request, response) => {
         
     });
   });
+});
+
+app.get('/backtests', (request, response) => {
+  console.log('all backtests retrieve/get request came in!');
+  console.log(`user ID now ${request.cookies.userId}`);
+
+  let data;
+  let backtestsData;
+  // Query using pg.Pool 
+  pool
+    .query('SELECT * FROM backtests')
+    .then((result) =>{
+      console.log(result.rows)
+      backtestsData = result.rows;
+      data = {
+        allTests: backtestsData,
+      };
+      response.render('backtests', data);
+    }).catch((error) => console.log(error.stack));
 });
 
 app.listen(PORT);
