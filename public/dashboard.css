@@ -106,3 +106,28 @@ body {
   stroke-linejoin: round;
   fill: none;
 }
+
+#pageloader {
+  background: rgba(255, 255, 255, 0.8);
+  display: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
+
+#pageloader img {
+  left: 50%;
+  margin-left: -32px;
+  margin-top: -32px;
+  position: absolute;
+  top: 50%;
+}
+
+.buttonload {
+  background-color: #04aa6d; /* Green background */
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 12px 24px; /* Some padding */
+  font-size: 16px; /* Set a font-size */
+}
