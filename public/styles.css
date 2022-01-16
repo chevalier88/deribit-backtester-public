@@ -1,5 +1,6 @@
 body {
   font-size: 0.875rem;
+  background-color: white;
 }
 
 .feather {
@@ -174,29 +175,12 @@ body {
 
 /* Declare heights because of positioning of img element */
 .carousel-item {
-  height: 32rem;
+  height: 45vh;
 }
 .carousel-item > img {
   object-fit: contain;
+  filter: brightness(50%);
 }
-
-/* MARKETING CONTENT
--------------------------------------------------- */
-
-/* Center align the text within the three columns below the carousel */
-.marketing .col-lg-4 {
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-.marketing h2 {
-  font-weight: 400;
-}
-/* rtl:begin:ignore */
-.marketing .col-lg-4 p {
-  margin-right: 0.75rem;
-  margin-left: 0.75rem;
-}
-/* rtl:end:ignore */
 
 /* Featurettes
 ------------------------- */
@@ -233,4 +217,14 @@ body {
   .featurette-heading {
     margin-top: 7rem;
   }
+}
+
+#third-image {
+  background-blend-mode: darken;
+  filter: brightness(50%);
+}
+
+#fourth-image {
+  background-blend-mode: darken;
+  filter: brightness(50%);
 }
