@@ -79,10 +79,9 @@
             data-bs-slide-to="1"
             aria-label="Slide 2"
           ></button>
-
         </div>
         <div class="carousel-inner">
-          <div class="carousel-item active" id = "first-image">
+          <div class="carousel-item active" id="first-image">
             <img
               src="https://previews.123rf.com/images/peshkov/peshkov1903/peshkov190300128/118032033-abstract-forex-chart-on-dark-background-finance-and-invest-concept-3d-rendering.jpg"
               class="d-block w-100"
@@ -91,17 +90,17 @@
 
             <div class="container">
               <div class="carousel-caption text-start">
-                <h1>Backtest a Quant Strategy for Crypto.</h1>
+                <h1>Backtest a Quant Strategy on Deribit.</h1>
+                <p>Sometimes, technical analysis and "hodling" isn't enough.</p>
                 <p>
-                  Sometimes, technical analysis and "hodling" isn't enough.
-                </p>
-                <p>
-                  <a class="btn btn-lg btn-primary" href="/signup">Sign up today</a>
+                  <a class="btn btn-lg btn-primary" href="/signup"
+                    >Sign up today</a
+                  >
                 </p>
               </div>
             </div>
           </div>
-          <div class="carousel-item" id = "second-image">
+          <div class="carousel-item" id="second-image">
             <img
               src="https://image.shutterstock.com/image-photo/dark-street-wet-asphalt-reflections-600w-1590021904.jpg"
               class="d-block w-100"
@@ -110,11 +109,13 @@
 
             <div class="container">
               <div class="carousel-caption">
-                <h1>Mean Reversion: find out whether crypto-derivatives are cointegrated.</h1>
+                <h1>Discover cointegrated crypto-derivatives.</h1>
+                <p>Statistical arbitrage allows market-neutral trading.</p>
                 <p>
-                  Statistical arbitrage allows traders to hedge during both bull and bear markets.
+                  <a class="btn btn-lg btn-primary" href="/backtest"
+                    >Run A Backtest Now</a
+                  >
                 </p>
-                <p><a class="btn btn-lg btn-primary" href="/backtest">Run A Backtest Now</a></p>
               </div>
             </div>
           </div>
@@ -143,56 +144,70 @@
   ================================================== -->
       <!-- Wrap the rest of the page in another container to center all the content. -->
 
-       <!-- /.row -->
+      <!-- /.row -->
 
-        <!-- START THE FEATURETTES -->
-
-        <hr class="featurette-divider" />
-
-        <div class="row featurette">
-          <div class="col-md-7 order-md-2">
+      <!-- START THE FEATURETTES -->
+      <div class="container">
+        <div class="row border-top">
+          <div class="col-lg-5 col-md-5 col-sm-12" id="third-image">
+            <img
+              src="https://media1.giphy.com/media/W5UoBN0YMdT1QP8Yfr/giphy.gif?cid=ecf05e4734sonvgrsd4v0ik6wpb7bxiwrzaul9cdtm0yk9lf&rid=giphy.gif&ct=g"
+              class="img-fluid img-thumbnail"
+            />
+          </div>
+          <div class="col-lg-7 col-md-7 col-sm-12">
             <h2 class="featurette-heading">
-              Powered by APIs, Websockets, Node.js, Chart.js & Pandas. 
+              Powered by APIs, Websockets, Node.js, Chart.js & Pandas.
               <span class="text-muted">Written in ES6 & Python 3.0.</span>
             </h2>
             <p class="lead">
-              The app is built on Express, but to actually connect to Deribit, API calls are made using Websockets, which is faster than POST/GET Requests. Node doesn't really seem to have a strong Data Science library, so this Node.js app talks to a local Python script that utilizes Pandas. Pandas is helpful here, because we're parsing timeseries data as large as > 4800 rows, to check for statistically significant arbitrage opportunities. Everything is then read back into the Node app, and parsed into SQL tables with Postgres so that CRUD operations can be run. Finally, the timeseries data produced by each backtest is truncated into a sample of only ~100 rows x 2 columns. This prevents big data from overwhelming the SQL tables, and allows chart.js to plot legible charts, though this comes at the cost of strict graphing accuracy.
+              The app is built on Express, but to actually connect to Deribit,
+              API calls are made using Websockets, which is faster than POST/GET
+              Requests. Node doesn't really seem to have a strong Data Science
+              library, so this Node.js app talks to a local Python script that
+              utilizes Pandas. Pandas is helpful here, because we're parsing
+              timeseries data as large as > 4800 rows, to check for
+              statistically significant arbitrage opportunities. Everything is
+              then read back into the Node app, and parsed into SQL tables with
+              Postgres so that CRUD operations can be run. Finally, the
+              timeseries data produced by each backtest is truncated into a
+              sample of only ~100 rows x 2 columns. This prevents big data from
+              overwhelming the SQL tables, and allows chart.js to plot legible
+              charts, though this comes at the cost of strict graphing accuracy.
             </p>
           </div>
-          <div class="col-md-5 order-md-1" id = "fourth-image">
-            <img
-              src="https://media1.giphy.com/media/W5UoBN0YMdT1QP8Yfr/giphy.gif?cid=ecf05e4734sonvgrsd4v0ik6wpb7bxiwrzaul9cdtm0yk9lf&rid=giphy.gif&ct=g"
-              width="500"
-              height="500"
-            />
-          </div>
         </div>
+      </div>
 
-        <hr class="featurette-divider" />
-
+      <hr class="featurette-divider" />
+      <div class="container">
         <div class="row featurette">
-          <div class="col-md-7">
+          <div class="col-lg-7 col-md-7 col-sm-12">
             <h2 class="featurette-heading">
               Connect to Deribit,
-              <span class="text-muted">one of the World's Largest Crypto-Derivatives Exchanges.</span>
+              <span class="text-muted"
+                >one of the World's Largest Crypto-Derivatives Exchanges.</span
+              >
             </h2>
             <p class="lead">
-              As of January 2022, more than 6,700 BTC, or USD 289,233,120, is traded on this exchange. The ample liquidity provides a realistic setting to test for mean reverting opportunities in the crypto-futures market.
+              As of January 2022, more than 6,700 BTC, or USD 289,233,120, is
+              traded on this exchange. The ample liquidity provides a realistic
+              setting to test for mean reverting opportunities in the
+              crypto-futures market.
             </p>
           </div>
-          <div class="col-md-5" id = "third-image">
+          <div class="col-lg-5 col-md-5 col-sm-12" id="third-image">
             <img
               src="https://themargin.io/wp-content/uploads/2020/07/deribit-2048x1288.png"
-              width="500"
-              height="500"
+              class="img-fluid img-thumbnail"
             />
           </div>
         </div>
-
-        <hr class="featurette-divider" />
-
-        <!-- /END THE FEATURETTES -->
       </div>
+
+      <hr class="featurette-divider" />
+
+      <!-- /END THE FEATURETTES -->
       <!-- /.container -->
 
       <!-- FOOTER -->

@@ -63,21 +63,24 @@
       </div>
     </div>
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-      >
-        <h1 class="h2">You're Already Logged In!</h1>
-      </div>
-      <div class="container" id="form-container" style="max-width: 600px">
-        <br />
-        <div class="col text-center">
-          <a href="/signup"> Want to create another account? Sign Up Here </a>
+      <div class="container">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+        >
+          <h1 class="h2">You're Already Logged In!</h1>
         </div>
-        <br />
-        <div class="col text-center">
-          <a href="/logout"> Click here if you want to logout </a>
+        <div class="container" id="form-container" style="max-width: 600px">
+          <br />
+          <div class="col text-center">
+            <a href="/signup"> Want to create another account? Sign Up Here </a>
+          </div>
+          <br />
+          <div class="col text-center">
+            <a href="/logout"> Click here if you want to logout </a>
+          </div>
         </div>
       </div>
+      <hr class="featurette-divider" />
       <%- include('partials/footer-no-chart'); -%>
     </main>
   </body>

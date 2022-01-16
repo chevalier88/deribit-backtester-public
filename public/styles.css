@@ -175,7 +175,7 @@ body {
 
 /* Declare heights because of positioning of img element */
 .carousel-item {
-  height: 45vh;
+  height: 40vh;
 }
 .carousel-item > img {
   object-fit: contain;
@@ -221,7 +221,6 @@ body {
 
 #third-image {
   background-blend-mode: darken;
-  filter: brightness(50%);
 }
 
 #fourth-image {

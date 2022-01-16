@@ -63,81 +63,87 @@
       </div>
     </div>
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-      >
-        <h1 class="h2">Editing Backtest Report No. <%= mainResult.id %></h1>
-      </div>
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-      >
-        <p>
-          All backtested data is calculated dynamically using a real-life
-          quantitative algorithm, with no dummy data.<br /><br />This means
-          <b
-            >the only variable that you can safely edit is the starting
-            balance,</b
-          >
-          without compromising the accuracy of the backtest.
-        </p>
-      </div>
-      <form
-        class="form-signin"
-        action="/edit/<%= mainResult.id %>"
-        method="POST"
-      >
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
-              <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
-              <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="floatingInput"
-                    name="new_balance"
-                    placeholder="<%= mainResult.starting_balance %>"
-                  />
-                  <label for="floatingInput"
-                    ><%= mainResult.starting_balance %></label
-                  >
-                </div>
-              </td>
-              <td><%= mainResult.ending_balance %></td>
-              <td><%= mainResult.decimal_roi %></td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- the use of a hidden input here allows for easier update of the postgres tables. -->
-        <!-- derived from https://www.w3schools.com/tags/att_input_type_hidden.asp#:~:text=The%20%3Cinput%20type%3D%22hidden,when%20the%20form%20is%20submitted. -->
-        <input
-          type="hidden"
-          name="decimal_roi"
-          value="<%= mainResult.decimal_roi %>"
-        />
-        <div class="row">
-          <div class="col text-center">
-            <button class="btn btn-sm btn-primary" type="submit">
-              Submit Edit >>
-            </button>
-          </div>
+      <div class="container">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+        >
+          <h1 class="h2">Editing Backtest Report No. <%= mainResult.id %></h1>
         </div>
-      </form>
-      <form
-        class="col text-center"
-        id="delete-button"
-        action="/edit/<%= mainResult.id %>/delete?_method=DELETE"
-        method="POST"
-      >
-        <input class="btn btn-sm btn-secondary" type="submit" value="Delete" />
-      </form>
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+        >
+          <p>
+            All backtested data is calculated dynamically using a real-life
+            quantitative algorithm, with no dummy data.<br /><br />This means
+            <b
+              >the only variable that you can safely edit is the starting
+              balance,</b
+            >
+            without compromising the accuracy of the backtest.
+          </p>
+        </div>
+        <form
+          class="form-signin"
+          action="/edit/<%= mainResult.id %>"
+          method="POST"
+        >
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
+                <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
+                <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="floatingInput"
+                      name="new_balance"
+                      placeholder="<%= mainResult.starting_balance %>"
+                    />
+                    <label for="floatingInput"
+                      ><%= mainResult.starting_balance %></label
+                    >
+                  </div>
+                </td>
+                <td><%= mainResult.ending_balance %></td>
+                <td><%= mainResult.decimal_roi %></td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- the use of a hidden input here allows for easier update of the postgres tables. -->
+          <!-- derived from https://www.w3schools.com/tags/att_input_type_hidden.asp#:~:text=The%20%3Cinput%20type%3D%22hidden,when%20the%20form%20is%20submitted. -->
+          <input
+            type="hidden"
+            name="decimal_roi"
+            value="<%= mainResult.decimal_roi %>"
+          />
+          <div class="row">
+            <div class="col text-center">
+              <button class="btn btn-sm btn-primary" type="submit">
+                Submit Edit >>
+              </button>
+            </div>
+          </div>
+        </form>
+        <form
+          class="col text-center"
+          id="delete-button"
+          action="/edit/<%= mainResult.id %>/delete?_method=DELETE"
+          method="POST"
+        >
+          <input
+            class="btn btn-sm btn-secondary"
+            type="submit"
+            value="Delete"
+          />
+        </form>
+      </div>
       <hr class="featurette-divider" />
       <%- include('partials/footer-no-chart'); -%>
     </main>

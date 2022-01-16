@@ -64,83 +64,90 @@
       </div>
     </div>
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3"
-      >
-        <h1 class="h2">Backtest Report No. <%= mainResult.id %></h1>
-      </div>
-
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-      >
-        <h1 class="h4">
-          ROI (rounded to nearest percentage): <%= mainResult.roi %>
-        </h1>
-      </div>
-      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
-
-      <h2>
-        <%= mainResult.frontLegKey%>/ <%= mainResult.midLegKey%>/ <%=
-        mainResult.backLegKey%> <%= mainResult.timeframe%> Timeframe Butterfly
-      </h2>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col-md-3 col-sm-3">Backtest Run Timestamp</th>
-              <th scope="col-md-3 col-sm-3">Backtest Dataset Length</th>
-              <th scope="col-md-3 col-sm-3">Timeframe (in mins unless 1D)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><%= mainResult.created_timestamp%></td>
-              <td><%= mainResult.length%></td>
-              <td><%= mainResult.timeframe%></td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col-md-3 col-sm-3">Front Vector</th>
-              <th scope="col-md-3 col-sm-3">Middle Vector</th>
-              <th scope="col-md-3 col-sm-3">Back Vector</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><%= mainResult.front_vector%></td>
-              <td><%= mainResult.mid_vector%></td>
-              <td><%= mainResult.back_vector%></td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
-              <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
-              <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><%= mainResult.decimal_roi%></td>
-              <td><%= mainResult.starting_balance%></td>
-              <td><%= mainResult.ending_balance%></td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="col text-center">
-          <a
-            class="btn btn-primary btn-sm btn-block"
-            href="/edit/<%= mainResult.id %>"
-            role="button"
-            >Edit/Delete »</a
-          >
+      <div class="container">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3"
+        >
+          <h1 class="h2">Backtest Report No. <%= mainResult.id %></h1>
         </div>
-        <br />
+
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+        >
+          <h1 class="h4">
+            ROI (rounded to nearest percentage): <%= mainResult.roi %>
+          </h1>
+        </div>
+        <canvas
+          class="my-4 w-100"
+          id="myChart"
+          width="900"
+          height="380"
+        ></canvas>
+
+        <h2>
+          <%= mainResult.frontLegKey%>/ <%= mainResult.midLegKey%>/ <%=
+          mainResult.backLegKey%> <%= mainResult.timeframe%> Timeframe Butterfly
+        </h2>
+        <div class="table-responsive">
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th scope="col-md-3 col-sm-3">Backtest Run Timestamp</th>
+                <th scope="col-md-3 col-sm-3">Backtest Dataset Length</th>
+                <th scope="col-md-3 col-sm-3">Timeframe (in mins unless 1D)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><%= mainResult.created_timestamp%></td>
+                <td><%= mainResult.length%></td>
+                <td><%= mainResult.timeframe%></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th scope="col-md-3 col-sm-3">Front Vector</th>
+                <th scope="col-md-3 col-sm-3">Middle Vector</th>
+                <th scope="col-md-3 col-sm-3">Back Vector</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><%= mainResult.front_vector%></td>
+                <td><%= mainResult.mid_vector%></td>
+                <td><%= mainResult.back_vector%></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
+                <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
+                <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><%= mainResult.decimal_roi%></td>
+                <td><%= mainResult.starting_balance%></td>
+                <td><%= mainResult.ending_balance%></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="col text-center">
+            <a
+              class="btn btn-primary btn-sm btn-block"
+              href="/edit/<%= mainResult.id %>"
+              role="button"
+              >Edit/Delete »</a
+            >
+          </div>
+          <br />
+        </div>
       </div>
       <hr class="featurette-divider" />
       <%- include('partials/footer-for-chart'); -%>
