@@ -477,10 +477,10 @@ app.get('/backtest/:id', (request, response) => {
           console.log(result1.rows);
           console.log('printing result2 rows...')
           console.log(result2.rows);
-          console.log('printing result2 rows...')
+          console.log('printing result3 rows...')
           console.log(result3.rows);
 
-          //parse the legs correctly
+          // parse the legs correctly
           let frontLegName;
           let midLegName;
           let backLegName;
@@ -497,6 +497,25 @@ app.get('/backtest/:id', (request, response) => {
           })
           console.log ('printing retrieved leg names...');
           console.log (`front: ${frontLegName}, mid: ${midLegName}, back: ${backLegName}`);
+
+          // parse the timeseries data in order to later use as arrays for chart.js
+          let timestampsArray = []
+          let cumretArray = []
+
+          // converting to datettime string
+          // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
+          result3.rows.forEach((element) =>{
+            let milliseconds = Number(element.timestamp);
+            console.log(milliseconds);
+            let dateObject = new Date(milliseconds);
+            let humanDateFormat = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+            console.log(humanDateFormat);
+            timestampsArray.push(humanDateFormat);
+            cumretArray.push(Number(element.cumret));
+          })
+          console.log("printing lengths of timestamps and cumret arrays...");
+          console.log(timestampsArray.length);
+          console.log(cumretArray.length);
 
           let content = {
             mainResult:{
@@ -515,11 +534,13 @@ app.get('/backtest/:id', (request, response) => {
               ending_balance: result1.rows[0].ending_balance,
               created_timestamp: result1.rows[0].created_timestamp,
               timeframe: result1.rows[0].timeframe,
-            }
+              timestamps: timestampsArray,
+              cumret: cumretArray,
+            },
           };
           console.log('printing content object...')
           console.log(content);
-          response.render('backtestIndex', content);
+          response.render('backtestIndexDraft', content);
         });
 
         // return tripleQueries.then((arrayOfResults) =>{

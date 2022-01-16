@@ -9,7 +9,7 @@
       content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
     />
     <meta name="generator" content="Hugo 0.88.1" />
-    <title>Backtest Results</title>
+    <title>Dashboard Template · Bootstrap v5.1</title>
 
     <link
       rel="canonical"
@@ -17,7 +17,7 @@
     />
 
     <!-- Bootstrap core CSS -->
-    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
 
     <style>
       .bd-placeholder-img {
@@ -36,7 +36,7 @@
     </style>
 
     <!-- Custom styles for this template -->
-    <link href="./dashboard.css" rel="stylesheet" />
+    <link href="../dashboard.css" rel="stylesheet" />
   </head>
   <body>
     <header
@@ -156,7 +156,7 @@
           <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
           >
-            <h1 class="h2">ROI (in %)</h1>
+            <h1 class="h2">Dashboard</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group me-2">
                 <button type="button" class="btn btn-sm btn-outline-secondary">
@@ -315,7 +315,7 @@
       </div>
     </div>
 
-    <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
 
     <script
       src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
@@ -327,6 +327,47 @@
       integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha"
       crossorigin="anonymous"
     ></script>
-    <script src="./dashboard.js"></script>
+
+    <script>
+      /* globals Chart:false, feather:false */
+
+      (function () {
+        feather.replace({ "aria-hidden": "true" });
+
+        // Graphs
+        var ctx = document.getElementById("myChart");
+        // eslint-disable-next-line no-unused-vars
+        var myChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: <%- JSON.stringify(mainResult.timestamps); %>,
+            datasets: [
+              {
+                data: <%- JSON.stringify(mainResult.cumret); %>,
+                lineTension: 0,
+                backgroundColor: "transparent",
+                borderColor: "#007bff",
+                borderWidth: 4,
+                pointBackgroundColor: "#007bff",
+              },
+            ],
+          },
+          options: {
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: false,
+                  },
+                },
+              ],
+            },
+            legend: {
+              display: false,
+            },
+          },
+        });
+      })();
+    </script>
   </body>
 </html>
