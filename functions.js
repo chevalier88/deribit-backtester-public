@@ -8,6 +8,12 @@ function toTimestamp(year, month, day) {
   return datum.getTime();
 }
 
+function toDatetimeShort(timestamp){
+  const milliseconds = Number(timestamp)
+  const dateObject = new Date(milliseconds);
+  return humanDateFormat = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
+}
+
 function chartMsg(leg, id, sinceDay, now, tf){
   const msgResult = {
     "jsonrpc" : "2.0",
@@ -32,5 +38,5 @@ const printLater = (message, delay) => new Promise((resolve, reject) => {
 });
 
 module.exports = {
-  toTimestamp, chartMsg, printLater
+  toTimestamp, chartMsg, printLater, toDatetimeShort
 };

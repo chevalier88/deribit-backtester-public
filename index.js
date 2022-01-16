@@ -344,7 +344,7 @@ app.post('/backtest', (request, response) => {
 
                 // the python backtester script will also build cumulative returns in a json file. this can be appended also into PG
                 // so we read the file and parse it accordingly. 
-                let cumretFilestring = `./data/${dataObject.backtest_created_timestamp}_cumret.json`
+                let cumretFilestring = `./data/${dataObject.backtest_created_timestamp}_${dataObject.tf}_cumret.json`
                 let rawCumretData = fs.readFileSync(cumretFilestring);
                 let parsedCumret = JSON.parse(rawCumretData);
 
@@ -358,7 +358,7 @@ app.post('/backtest', (request, response) => {
                   //calculate ending balance
                   endingBalance = formData.starting_balance*dataObject.ROI;
                   console.log(`endingBalance: ${endingBalance}`);
-                  let insertBacktestString = `INSERT INTO backtests ("user_id", "timeframe_id", "roi", "length", "lookback", "std_dev", "front_vector", "middle_vector", "back_vector", "created_timestamp", "starting_balance", "ending_balance") VALUES (${cookieUserId}, ${formData.timeframes_id}, ${dataObject.ROI}, ${dataObject.length}, ${dataObject.lookback}, ${dataObject.std_dev}, ${dataObject.front_vector}, ${dataObject.middle_vector}, ${dataObject.back_vector}, '${dataObject.backtest_created_timestamp}', ${formData.starting_balance}, ${endingBalance}) returning id;
+                  let insertBacktestString = `INSERT INTO backtests ("user_id", "timeframe_id", "roi", "length", "lookback", "std_dev", "front_vector", "middle_vector", "back_vector", "created_timestamp", "starting_balance", "ending_balance") VALUES (${cookieUserId}, ${formData.timeframes_id}, ${dataObject.ROI}, ${dataObject.length}, ${dataObject.lookback}, ${dataObject.std_dev}, ${dataObject.front_vector}, ${dataObject.middle_vector}, ${dataObject.back_vector}, '${dataObject.backtest_alt_timestamp}', ${formData.starting_balance}, ${endingBalance}) returning id;
                   `;
                   console.log(insertBacktestString);
                   return pool.query(insertBacktestString);
@@ -505,11 +505,7 @@ app.get('/backtest/:id', (request, response) => {
           // converting to datettime string
           // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
           result3.rows.forEach((element) =>{
-            let milliseconds = Number(element.timestamp);
-            console.log(milliseconds);
-            let dateObject = new Date(milliseconds);
-            let humanDateFormat = dateObject.toLocaleString("en-US", {timeZoneName: "short"});
-            console.log(humanDateFormat);
+            let humanDateFormat = fn.toDatetimeShort(element.timestamp);
             timestampsArray.push(humanDateFormat);
             cumretArray.push(Number(element.cumret));
           })
@@ -517,13 +513,21 @@ app.get('/backtest/:id', (request, response) => {
           console.log(timestampsArray.length);
           console.log(cumretArray.length);
 
+          // calculate ROI in human readable format
+          const rawROI = Number(result1.rows[0].roi);
+          const readableROI = `${Math.floor(rawROI*100-100)}%`
+
+          // get created_timestamp in human readable format
+          const readableCreateTimestamp = fn.toDatetimeShort(result1.rows[0].created_timestamp);
+
           let content = {
             mainResult:{
               frontLegKey: frontLegName,
               midLegKey: midLegName,
               backLegKey: backLegName,
               id: result1.rows[0].id,
-              roi: result1.rows[0].roi,
+              roi: readableROI,
+              decimal_roi: result1.rows[0].roi,
               length: result1.rows[0].length,
               lookback: result1.rows[0].lookback,
               std_dev: result1.rows[0].std_dev,
@@ -540,7 +544,7 @@ app.get('/backtest/:id', (request, response) => {
           };
           console.log('printing content object...')
           console.log(content);
-          response.render('backtestIndexDraft', content);
+          response.render('backtestIndex', content);
         });
 
         // return tripleQueries.then((arrayOfResults) =>{

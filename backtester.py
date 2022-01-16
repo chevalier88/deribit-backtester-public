@@ -25,7 +25,9 @@ df_object = pd.read_json(sys.argv[1])
 # print(df_object.iloc[0])
 
 # the now timestmap will also be taken from df_object later
-now = datetime.now().strftime(("%d_%m_%Y_%H_%M_%S"))
+actual_now = datetime.now()
+now_readable = actual_now.strftime(("%d_%m_%Y_%H_%M_%S"))
+now = str(actual_now)
 
 front_leg_instrument = df_object.iloc[0]["leg"]
 middle_leg_instrument = df_object.iloc[1]["leg"]
@@ -268,7 +270,8 @@ def butterfly_sl_backtester(df, front_vector, middle_vector, back_vector, lookba
         "front_vector": front_vector,
         "middle_vector": middle_vector,
         "back_vector": back_vector,
-        "backtest_created_timestamp": f'{now}_{tf}',
+        "backtest_created_timestamp": now_readable,
+        "backtest_alt_timestamp": now,
     }
     # print(df.head())
 
@@ -300,7 +303,7 @@ nth_factor = int(df_length/100)-1
 
 df = exportable_df.iloc[::nth_factor]
 
-json_df = df.to_json(f'./data/{now}_{tf}_cumret.json', orient = 'columns')
+json_df = df.to_json(f'./data/{now_readable}_{tf}_cumret.json', orient = 'columns')
 # df.to_csv(f'./data/{now}_{tf}_running.csv')
 
 # trying ot read exported json file for sys.stdout.write sending
