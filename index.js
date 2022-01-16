@@ -434,7 +434,6 @@ app.get('/backtest/:id', (request, response) => {
   if (request.cookies.loggedIn === 'true') {
     // const getAllBirdNotesQuery = `
     // SELECT * FROM birds;`;
-    let content = {};
     // inner join to get all the deets from the 3 tables:
     // backtests, instruments, timeframes
 
@@ -603,6 +602,33 @@ app.get('/backtests', (request, response) => {
 app.get('/disclaimer', (request, response) => {
   console.log('disclaimer request');
   response.render('disclaimer');
+});
+
+app.get('/edit/:id', (request, response) => {
+
+  if (request.cookies.loggedIn === 'true') {
+    console.log(request.params.id);
+    console.log('indiv backtest edit request came in');
+
+    let content;
+
+    pool
+      .query(`SELECT * FROM backtests WHERE id = ${request.params.id}`)
+      .then((result) => {
+        console.log(result.rows);
+        let content = {
+          mainResult:{
+            id: result.rows[0].id,
+            decimal_roi: result.rows[0].roi,
+            starting_balance: result.rows[0].starting_balance,
+            ending_balance: result.rows[0].ending_balance,
+          },
+        };
+        response.render('backtestEdit', content);
+      })
+  } else {
+    response.render('logoutFail');
+  }
 });
 
 app.listen(PORT);

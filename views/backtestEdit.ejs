@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%- include('partials/head', {title: 'Backtest Homepage'}); -%>
+    <%- include('partials/head', {title: 'Edit'}); -%>
   </head>
   <body>
     <%- include('partials/header'); -%>
@@ -14,14 +14,14 @@
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">
+                <a class="nav-link" aria-current="page" href="/">
                   <span data-feather="home"></span>
                   Home
                 </a>
               </li>
 
               <li class="nav-item">
-                <a class="nav-link" href="/backtests">
+                <a class="nav-link active" href="/backtests">
                   <span data-feather="bar-chart-2"></span>
                   Backtests
                 </a>
@@ -66,10 +66,57 @@
       <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
       >
-        <h1 class="h2">Home</h1>
+        <h1 class="h2">Editing Backtest Report No. <%= mainResult.id %></h1>
       </div>
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+      >
+        <p>
+          All backtested data is calculated dynamically using a real-life
+          quantitative algorithm, with no dummy data.<br /><br />This means
+          <b
+            >the only variable that you can safely edit is the starting
+            balance,</b
+          >
+          without compromising the accuracy of the backtest.
+        </p>
+      </div>
+      <form
+        class="form-signin"
+        action="/edit/<%= mainResult.id %>"
+        method="POST"
+      >
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="floatingInput"
+                    placeholder="${<%= mainResult.starting_balance %>}"
+                  />
+                  <label for="floatingInput"
+                    ><%= mainResult.starting_balance %></label
+                  >
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="col text-center">
+          <button class="btn btn-sm btn-primary" type="submit">
+            Submit Edit >>
+          </button>
+        </div>
+      </form>
     </main>
-
     <%- include('partials/footer-no-chart'); -%>
   </body>
 </html>
