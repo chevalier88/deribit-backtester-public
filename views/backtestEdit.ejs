@@ -130,7 +130,12 @@
           </div>
         </div>
       </form>
-      <form class="col text-center" action="/backtests">
+      <form
+        class="col text-center"
+        id="delete-button"
+        action="/edit/<%= mainResult.id %>/delete?_method=DELETE"
+        method="POST"
+      >
         <input class="btn btn-sm btn-secondary" type="submit" value="Delete" />
       </form>
       <br />

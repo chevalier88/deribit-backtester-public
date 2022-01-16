@@ -14,6 +14,7 @@ const format = require('pg-format');
 // deribit websocket client
 const WebSocket = require('ws');
 const { parse } = require('path');
+const { response } = require('express');
 
 // Initialise DB connection
 const { Pool } = pg;
@@ -644,7 +645,7 @@ app.post('/edit/:id', (request, response) => {
     const roiMultiplier = Number(formData.decimal_roi);
     const newStartBalance = Number(formData.new_balance);
 
-    const newEndBalance = roiMultiplier*newStartBalance;
+    const newEndBalance = Number(roiMultiplier*newStartBalance);
     console.log('printing the new End Balance...')
     console.log(newEndBalance);
 
@@ -665,6 +666,31 @@ app.post('/edit/:id', (request, response) => {
   } else {
     response.render('logoutFail');
   }
+});
+
+app.delete('/edit/:id/delete', (request, response) => {
+  const id = Number(request.params.id);
+  console.log(`id: ${id}`);
+
+  // have to delete the rows from 3 separate tables, in a Promise.all style thing
+  const deleteMainQuery = `DELETE FROM backtests WHERE id=${id};`
+  const deleteBridgingQuery = `DELETE FROM backtests_instruments WHERE backtest_id=${id};`
+  const deleteTimeSeriesQuery = `DELETE FROM backtest_cumret_timeseries WHERE backtest_id=${id};`
+
+  const results = Promise.all([
+    pool.query(deleteMainQuery),
+    pool.query(deleteBridgingQuery),
+    pool.query(deleteTimeSeriesQuery),
+    ]).then((allResults)=>
+    {
+      console.log(allResults);
+    });
+
+  return results.then((arrayOfResults) =>{
+    console.log('triple delete complete');
+    console.log(arrayOfResults);
+    response.redirect('/backtests');
+  });
 });
 
 app.listen(PORT);
