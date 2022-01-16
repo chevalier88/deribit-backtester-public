@@ -66,7 +66,7 @@ app.get('/signup', (request, response) => {
       return;
     }
     console.log(result.rows[0]);
-    response.render('signupForm');
+    response.render('signupFormDraft');
   };
 
   // Query using pg.Pool instead of pg.Client
@@ -157,14 +157,7 @@ app.post('/login', (request, response) => {
 
 app.get('/', (request, response) => {
   console.log('homepage request');
-  if (request.cookies.loggedIn === 'true') {
-    // const getAllBirdNotesQuery = `
-    // SELECT * FROM birds;`;
-
   response.render('home');
-  } else {
-    response.status(403).send('sorry, please log in!');
-  }
 });
 
 app.get('/logout', (request, response) => {
@@ -178,24 +171,27 @@ app.get('/logout', (request, response) => {
 app.get('/backtest', (request, response) => {
   console.log('backtest get form request came in!');
   console.log(`user ID now ${request.cookies.userId}`);
-
-  let data;
-  let timeframesData;
-  // Query using pg.Pool 
-  pool
-    .query('SELECT * FROM timeframes')
-    .then((result) =>{
-      console.log(result.rows);
-      timeframesData = result.rows;
-      return pool.query('SELECT * FROM instruments')
-    }).then((result2)=>{
-      console.log(result2.rows);
-      data = {
-        timeframes: timeframesData,
-        instruments: result2.rows,
-      };
-      response.render('backtest', data);
-    }).catch((error) => console.log(error.stack));
+  if (request.cookies.loggedIn === 'true') {
+    let data;
+    let timeframesData;
+    // Query using pg.Pool 
+    pool
+      .query('SELECT * FROM timeframes')
+      .then((result) =>{
+        console.log(result.rows);
+        timeframesData = result.rows;
+        return pool.query('SELECT * FROM instruments')
+      }).then((result2)=>{
+        console.log(result2.rows);
+        data = {
+          timeframes: timeframesData,
+          instruments: result2.rows,
+        };
+        response.render('backtestFormDraft', data);
+      }).catch((error) => console.log(error.stack));
+  } else {
+    response.status(403).send('sorry, you have to be logged in to see this!');
+  } 
 });
 
 app.post('/backtest', (request, response) => {
@@ -564,47 +560,43 @@ app.get('/backtest/:id', (request, response) => {
 app.get('/backtests', (request, response) => {
   console.log('all backtests retrieve/get request came in!');
   console.log(`user ID now ${request.cookies.userId}`);
+  if (request.cookies.loggedIn === 'true') {
+    let data;
+    let backtestsData;
+    // Query using pg.Pool 
+    pool
+      .query('SELECT * FROM backtests')
+      .then((result) =>{
+        console.log(result.rows)
+        backtestsData = result.rows;
+        // parse the timeseries data in order to later use as arrays for chart.js
+        let labelsArray = []
+        let cumretArray = []
 
-  let data;
-  let backtestsData;
-  // Query using pg.Pool 
-  pool
-    .query('SELECT * FROM backtests')
-    .then((result) =>{
-      console.log(result.rows)
-      backtestsData = result.rows;
-      // parse the timeseries data in order to later use as arrays for chart.js
-      let labelsArray = []
-      let cumretArray = []
-
-      // converting to datettime string
-      // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
-      result.rows.forEach((element) =>{
-        labelsArray.push(element.id);
-        cumretArray.push(Number(element.roi));
-      })
-      console.log("printing lengths of labels and data arrays...");
-      console.log(labelsArray.length);
-      console.log(cumretArray.length);
-      data = {
-        allTests: backtestsData,
-        labels: labelsArray,
-        allROIs: cumretArray,
-      };
-      response.render('backtests', data);
-    }).catch((error) => console.log(error.stack));
+        // converting to datettime string
+        // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
+        result.rows.forEach((element) =>{
+          labelsArray.push(element.id);
+          cumretArray.push(Number(element.roi));
+        })
+        console.log("printing lengths of labels and data arrays...");
+        console.log(labelsArray.length);
+        console.log(cumretArray.length);
+        data = {
+          allTests: backtestsData,
+          labels: labelsArray,
+          allROIs: cumretArray,
+        };
+        response.render('backtests', data);
+      }).catch((error) => console.log(error.stack));
+  } else {
+    response.status(403).send('sorry, you have to be logged in to see this!');
+  };
 });
 
 app.get('/disclaimer', (request, response) => {
-  console.log('homepage request');
-  if (request.cookies.loggedIn === 'true') {
-    // const getAllBirdNotesQuery = `
-    // SELECT * FROM birds;`;
-
-    response.render('disclaimer');
-  } else {
-    response.status(403).send('sorry');
-  }
+  console.log('disclaimer request');
+  response.render('disclaimer');
 });
 
 app.listen(PORT);
