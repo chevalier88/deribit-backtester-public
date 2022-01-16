@@ -90,6 +90,8 @@
           <thead>
             <tr>
               <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
+              <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
+              <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
             </tr>
           </thead>
           <tbody>
@@ -100,22 +102,38 @@
                     type="text"
                     class="form-control"
                     id="floatingInput"
-                    placeholder="${<%= mainResult.starting_balance %>}"
+                    name="new_balance"
+                    placeholder="<%= mainResult.starting_balance %>"
                   />
                   <label for="floatingInput"
                     ><%= mainResult.starting_balance %></label
                   >
                 </div>
               </td>
+              <td><%= mainResult.ending_balance %></td>
+              <td><%= mainResult.decimal_roi %></td>
             </tr>
           </tbody>
         </table>
-        <div class="col text-center">
-          <button class="btn btn-sm btn-primary" type="submit">
-            Submit Edit >>
-          </button>
+        <!-- the use of a hidden input here allows for easier update of the postgres tables. -->
+        <!-- derived from https://www.w3schools.com/tags/att_input_type_hidden.asp#:~:text=The%20%3Cinput%20type%3D%22hidden,when%20the%20form%20is%20submitted. -->
+        <input
+          type="hidden"
+          name="decimal_roi"
+          value="<%= mainResult.decimal_roi %>"
+        />
+        <div class="row">
+          <div class="col text-center">
+            <button class="btn btn-sm btn-primary" type="submit">
+              Submit Edit >>
+            </button>
+          </div>
         </div>
       </form>
+      <form class="col text-center" action="/backtests">
+        <input class="btn btn-sm btn-secondary" type="submit" value="Delete" />
+      </form>
+      <br />
     </main>
     <%- include('partials/footer-no-chart'); -%>
   </body>

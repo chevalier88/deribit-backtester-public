@@ -610,8 +610,6 @@ app.get('/edit/:id', (request, response) => {
     console.log(request.params.id);
     console.log('indiv backtest edit request came in');
 
-    let content;
-
     pool
       .query(`SELECT * FROM backtests WHERE id = ${request.params.id}`)
       .then((result) => {
@@ -619,12 +617,50 @@ app.get('/edit/:id', (request, response) => {
         let content = {
           mainResult:{
             id: result.rows[0].id,
-            decimal_roi: result.rows[0].roi,
+            decimal_roi: String((Number(result.rows[0].roi).toFixed(2))),
             starting_balance: result.rows[0].starting_balance,
-            ending_balance: result.rows[0].ending_balance,
+            ending_balance: String((Number(result.rows[0].ending_balance).toFixed(2)))
           },
         };
+        console.log('printing edit content...')
+        console.log(content)
         response.render('backtestEdit', content);
+      })
+  } else {
+    response.render('logoutFail');
+  }
+});
+
+app.post('/edit/:id', (request, response) => {
+
+  if (request.cookies.loggedIn === 'true') {
+    console.log(request.params.id);
+    console.log('indiv backtest edit request came in');
+    const id = Number(request.params.id);
+    const formData = request.body;
+    console.log(id);
+    console.log(formData);
+
+    const roiMultiplier = Number(formData.decimal_roi);
+    const newStartBalance = Number(formData.new_balance);
+
+    const newEndBalance = roiMultiplier*newStartBalance;
+    console.log('printing the new End Balance...')
+    console.log(newEndBalance);
+
+    let updateQueryString = `
+    UPDATE backtests 
+    SET starting_balance = ${newStartBalance}, ending_balance = ${newEndBalance}
+    WHERE id = ${id};
+    `
+    console.log('printing update query...')
+    console.log(updateQueryString)
+    pool
+      .query(updateQueryString)
+      .then((result)=>{
+        console.log('printing update query result...');
+        console.log(result);
+        response.redirect(`/backtest/${id}`);
       })
   } else {
     response.render('logoutFail');
