@@ -72,7 +72,7 @@
         <h1 class="h2">Start A New Backtest</h1>
       </div>
       <div class="container" id="form-container" style="max-width: 600px">
-        <form action="/backtest" id = "myform" method="POST">
+        <form action="/backtest" id="myform" method="POST">
           <div class="row">
             <div class="form-group col-sm-6 col-md-6">
               <label for="starting_balance">Starting Balance ($)</label>
@@ -163,31 +163,37 @@
               value="Submit"
             />
           </div> -->
-          <div class="col text-center" >
-            <button type="submit" id="submit-button" class="btn btn-primary btn-sm btn-block">Run Backtest</button>
+          <div class="col text-center">
+            <button
+              type="submit"
+              id="submit-button"
+              class="btn btn-primary btn-sm btn-block"
+            >
+              Run Backtest
+            </button>
           </div>
-          <br>
+          <br />
         </form>
       </div>
-    </div>
+      <hr class="featurette-divider" />
+      <%- include('partials/footer-no-chart'); -%>
     </main>
     <!-- getting loading gif script work in jquery, derived from: -->
     <!-- https://stackoverflow.com/questions/38217274/loading-gif-on-normal-form-submit -->
     <!-- https://jsfiddle.net/zarch/2w6Lnp4m/3/ -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    
+
     <script>
-      $(document).ready(function() {
-          $("#myform").on("submit",function() {
-            // disable button
-            $("#submit-button").prop("disabled", true);
-            // add spinner to button
-            $("#submit-button").html(
-              `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
-            );
-          });
+      $(document).ready(function () {
+        $("#myform").on("submit", function () {
+          // disable button
+          $("#submit-button").prop("disabled", true);
+          // add spinner to button
+          $("#submit-button").html(
+            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+          );
+        });
       });
     </script>
-    <%- include('partials/footer-no-chart'); -%>
   </body>
 </html>
