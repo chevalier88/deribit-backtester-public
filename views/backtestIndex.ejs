@@ -1,63 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="" />
-    <meta
-      name="author"
-      content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
-    />
-    <meta name="generator" content="Hugo 0.88.1" />
-    <title>Backtest Results: ID No. <%= mainResult.id %></title>
-
-    <link
-      rel="canonical"
-      href="https://getbootstrap.com/docs/5.1/examples/dashboard/"
-    />
-
-    <!-- Bootstrap core CSS -->
-    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-
-    <!-- Custom styles for this template -->
-    <link href="../dashboard.css" rel="stylesheet" />
+    <%- include('partials/head', {title: `Backtest Report No.
+    ${mainResult.id}`}); -%>
   </head>
   <body>
-    <header
-      class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow"
-    >
-      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/"
-        >Backtester App</a
-      >
-      <button
-        class="navbar-toggler position-absolute d-md-none collapsed"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#sidebarMenu"
-        aria-controls="sidebarMenu"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </header>
-
+    <%- include('partials/header'); -%>
     <div class="container-fluid">
       <div class="row">
         <nav
@@ -80,9 +28,9 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/">
+                <a class="nav-link" href="/disclaimer">
                   <span data-feather="file-text"></span>
-                  View Disclaimer
+                  View Terms of Use
                 </a>
               </li>
               <li class="nav-item">
@@ -113,85 +61,79 @@
             </h6>
           </div>
         </nav>
-
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3"
-          >
-            <h1 class="h2">Backtest ID: <%= mainResult.id %></h1>
-          </div>
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-          >
-            <h1 class="h2">ROI: <%= mainResult.roi%></h1>
-          </div>
-          <canvas
-            class="my-4 w-100"
-            id="myChart"
-            width="900"
-            height="380"
-          ></canvas>
-
-          <h2>
-            <%= mainResult.frontLegKey%>/ <%= mainResult.midLegKey%>/ <%=
-            mainResult.backLegKey%> <%= mainResult.timeframe%> Timeframe
-            Butterfly
-          </h2>
-          <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col-md-3 col-sm-3">Backtest Run Timestamp</th>
-                  <th scope="col-md-3 col-sm-3">Backtest Dataset Length</th>
-                  <th scope="col-md-3 col-sm-3">
-                    Timeframe (in mins unless 1D)
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><%= mainResult.created_timestamp%></td>
-                  <td><%= mainResult.length%></td>
-                  <td><%= mainResult.timeframe%></td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col-md-3 col-sm-3">Front Vector</th>
-                  <th scope="col-md-3 col-sm-3">Middle Vector</th>
-                  <th scope="col-md-3 col-sm-3">Back Vector</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><%= mainResult.front_vector%></td>
-                  <td><%= mainResult.mid_vector%></td>
-                  <td><%= mainResult.back_vector%></td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
-                  <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
-                  <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><%= mainResult.decimal_roi%></td>
-                  <td><%= mainResult.starting_balance%></td>
-                  <td><%= mainResult.ending_balance%></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </main>
       </div>
     </div>
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3"
+      >
+        <h1 class="h2">Backtest Report No. <%= mainResult.id %></h1>
+      </div>
+
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+      >
+        <h1 class="h4">
+          ROI (rounded to nearest percentage): <%= mainResult.roi %>
+        </h1>
+      </div>
+      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+
+      <h2>
+        <%= mainResult.frontLegKey%>/ <%= mainResult.midLegKey%>/ <%=
+        mainResult.backLegKey%> <%= mainResult.timeframe%> Timeframe Butterfly
+      </h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col-md-3 col-sm-3">Backtest Run Timestamp</th>
+              <th scope="col-md-3 col-sm-3">Backtest Dataset Length</th>
+              <th scope="col-md-3 col-sm-3">Timeframe (in mins unless 1D)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= mainResult.created_timestamp%></td>
+              <td><%= mainResult.length%></td>
+              <td><%= mainResult.timeframe%></td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col-md-3 col-sm-3">Front Vector</th>
+              <th scope="col-md-3 col-sm-3">Middle Vector</th>
+              <th scope="col-md-3 col-sm-3">Back Vector</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= mainResult.front_vector%></td>
+              <td><%= mainResult.mid_vector%></td>
+              <td><%= mainResult.back_vector%></td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
+              <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
+              <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= mainResult.decimal_roi%></td>
+              <td><%= mainResult.starting_balance%></td>
+              <td><%= mainResult.ending_balance%></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
 
     <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -231,6 +173,10 @@
             ],
           },
           options: {
+            title: {
+                display: true,
+                text: 'Change in ROI over Time'
+            },
             scales: {
               yAxes: [
                 {
@@ -243,9 +189,10 @@
             legend: {
               display: false,
             },
-          },
+          }
         });
       })();
     </script>
+    <%- include('partials/footer-for-chart'); -%>
   </body>
 </html>

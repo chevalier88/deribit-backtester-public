@@ -429,130 +429,136 @@ app.get('/backtest/:id', (request, response) => {
 
   console.log(request.params.id);
 
-  let content = {};
-  // inner join to get all the deets from the 3 tables:
-  // backtests, instruments, timeframes
+  if (request.cookies.loggedIn === 'true') {
+    // const getAllBirdNotesQuery = `
+    // SELECT * FROM birds;`;
+    let content = {};
+    // inner join to get all the deets from the 3 tables:
+    // backtests, instruments, timeframes
 
-  // get the timeframe with backtest metadata
-  const testTFQuery = `
-  SELECT backtests.id, backtests.roi, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe
-  FROM backtests
-  INNER JOIN timeframes 
-  ON backtests.timeframe_id = timeframes.id 
-  WHERE backtests.id = ${request.params.id}`;
-  console.log(testTFQuery);
+    // get the timeframe with backtest metadata
+    const testTFQuery = `
+    SELECT backtests.id, backtests.roi, backtests.length, backtests.lookback, backtests.std_dev, backtests.front_vector, backtests.middle_vector, backtests.back_vector, backtests.starting_balance, backtests.ending_balance, backtests.created_timestamp, timeframes.timeframe
+    FROM backtests
+    INNER JOIN timeframes 
+    ON backtests.timeframe_id = timeframes.id 
+    WHERE backtests.id = ${request.params.id}`;
+    console.log(testTFQuery);
 
-  // get the 3 instrument legs
-  const testInstrumentQuery = `
-  SELECT backtests_instruments.id, backtests_instruments.instrument_id, backtests_instruments.leg, instruments.id, instruments.name
-  FROM backtests_instruments
-  INNER JOIN instruments
-  ON instruments.id = backtests_instruments.instrument_id
-  WHERE backtests_instruments.backtest_id = ${request.params.id};
-  `;
-  console.log(testInstrumentQuery);
+    // get the 3 instrument legs
+    const testInstrumentQuery = `
+    SELECT backtests_instruments.id, backtests_instruments.instrument_id, backtests_instruments.leg, instruments.id, instruments.name
+    FROM backtests_instruments
+    INNER JOIN instruments
+    ON instruments.id = backtests_instruments.instrument_id
+    WHERE backtests_instruments.backtest_id = ${request.params.id};
+    `;
+    console.log(testInstrumentQuery);
 
-  // get the large timeseries data
-  const testTimeseriesQuery = `
-  SELECT * FROM backtest_cumret_timeseries WHERE backtest_cumret_timeseries.backtest_id = ${request.params.id};
-  `;
-  console.log(testTimeseriesQuery);
+    // get the large timeseries data
+    const testTimeseriesQuery = `
+    SELECT * FROM backtest_cumret_timeseries WHERE backtest_cumret_timeseries.backtest_id = ${request.params.id};
+    `;
+    console.log(testTimeseriesQuery);
 
-  pool
-    .query(testTFQuery)
-    .then((result) =>{
-      console.log(result.rows);
+    pool
+      .query(testTFQuery)
+      .then((result) =>{
+        console.log(result.rows);
 
-      return fn.printLater('delaying by 1 seconds', 1000).then((successDelay)=>{
-        console.log(successDelay)
+        return fn.printLater('delaying by 1 seconds', 1000).then((successDelay)=>{
+          console.log(successDelay)
 
-        const tripleQueries = Promise.all([
-          pool.query(testTFQuery),
-          pool.query(testInstrumentQuery),
-          pool.query(testTimeseriesQuery),
-        ]).then((allResults)=>{
-          // console.log(allResults[0]);
-          const [result1, result2, result3] = allResults;
-          console.log('printing result1 rows...')
-          console.log(result1.rows);
-          console.log('printing result2 rows...')
-          console.log(result2.rows);
-          console.log('printing result3 rows...')
-          console.log(result3.rows);
+          const tripleQueries = Promise.all([
+            pool.query(testTFQuery),
+            pool.query(testInstrumentQuery),
+            pool.query(testTimeseriesQuery),
+          ]).then((allResults)=>{
+            // console.log(allResults[0]);
+            const [result1, result2, result3] = allResults;
+            console.log('printing result1 rows...')
+            console.log(result1.rows);
+            console.log('printing result2 rows...')
+            console.log(result2.rows);
+            console.log('printing result3 rows...')
+            console.log(result3.rows);
 
-          // parse the legs correctly
-          let frontLegName;
-          let midLegName;
-          let backLegName;
+            // parse the legs correctly
+            let frontLegName;
+            let midLegName;
+            let backLegName;
 
-          // for loop to correctly parse leg names
-          result2.rows.forEach((element)=> {
-            if (element.leg === 'front'){
-              frontLegName = element.name;
-            } else if (element.leg === 'mid'){
-              midLegName = element.name;
-            } else if (element.leg === 'back'){
-              backLegName = element.name;
+            // for loop to correctly parse leg names
+            result2.rows.forEach((element)=> {
+              if (element.leg === 'front'){
+                frontLegName = element.name;
+              } else if (element.leg === 'mid'){
+                midLegName = element.name;
+              } else if (element.leg === 'back'){
+                backLegName = element.name;
+              };
+            })
+            console.log ('printing retrieved leg names...');
+            console.log (`front: ${frontLegName}, mid: ${midLegName}, back: ${backLegName}`);
+
+            // parse the timeseries data in order to later use as arrays for chart.js
+            let timestampsArray = []
+            let cumretArray = []
+
+            // converting to datettime string
+            // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
+            result3.rows.forEach((element) =>{
+              let humanDateFormat = fn.toDatetimeShort(element.timestamp);
+              timestampsArray.push(humanDateFormat);
+              cumretArray.push(Number(element.cumret));
+            })
+            console.log("printing lengths of timestamps and cumret arrays...");
+            console.log(timestampsArray.length);
+            console.log(cumretArray.length);
+
+            // calculate ROI in human readable format
+            const rawROI = Number(result1.rows[0].roi);
+            const readableROI = `${Math.round(rawROI*100-100)}%`
+
+            // get created_timestamp in human readable format
+            const readableCreateTimestamp = fn.toDatetimeShort(result1.rows[0].created_timestamp);
+
+            let content = {
+              mainResult:{
+                frontLegKey: frontLegName,
+                midLegKey: midLegName,
+                backLegKey: backLegName,
+                id: result1.rows[0].id,
+                roi: readableROI,
+                decimal_roi: result1.rows[0].roi,
+                length: result1.rows[0].length,
+                lookback: result1.rows[0].lookback,
+                std_dev: result1.rows[0].std_dev,
+                front_vector: result1.rows[0].front_vector,
+                mid_vector: result1.rows[0].middle_vector,
+                back_vector: result1.rows[0].back_vector,
+                starting_balance: result1.rows[0].starting_balance,
+                ending_balance: result1.rows[0].ending_balance,
+                created_timestamp: result1.rows[0].created_timestamp,
+                timeframe: result1.rows[0].timeframe,
+                timestamps: timestampsArray,
+                cumret: cumretArray,
+              },
             };
-          })
-          console.log ('printing retrieved leg names...');
-          console.log (`front: ${frontLegName}, mid: ${midLegName}, back: ${backLegName}`);
+            console.log('printing content object...')
+            console.log(content);
+            response.render('backtestIndex', content);
+          });
 
-          // parse the timeseries data in order to later use as arrays for chart.js
-          let timestampsArray = []
-          let cumretArray = []
-
-          // converting to datettime string
-          // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
-          result3.rows.forEach((element) =>{
-            let humanDateFormat = fn.toDatetimeShort(element.timestamp);
-            timestampsArray.push(humanDateFormat);
-            cumretArray.push(Number(element.cumret));
-          })
-          console.log("printing lengths of timestamps and cumret arrays...");
-          console.log(timestampsArray.length);
-          console.log(cumretArray.length);
-
-          // calculate ROI in human readable format
-          const rawROI = Number(result1.rows[0].roi);
-          const readableROI = `${Math.floor(rawROI*100-100)}%`
-
-          // get created_timestamp in human readable format
-          const readableCreateTimestamp = fn.toDatetimeShort(result1.rows[0].created_timestamp);
-
-          let content = {
-            mainResult:{
-              frontLegKey: frontLegName,
-              midLegKey: midLegName,
-              backLegKey: backLegName,
-              id: result1.rows[0].id,
-              roi: readableROI,
-              decimal_roi: result1.rows[0].roi,
-              length: result1.rows[0].length,
-              lookback: result1.rows[0].lookback,
-              std_dev: result1.rows[0].std_dev,
-              front_vector: result1.rows[0].front_vector,
-              mid_vector: result1.rows[0].middle_vector,
-              back_vector: result1.rows[0].back_vector,
-              starting_balance: result1.rows[0].starting_balance,
-              ending_balance: result1.rows[0].ending_balance,
-              created_timestamp: result1.rows[0].created_timestamp,
-              timeframe: result1.rows[0].timeframe,
-              timestamps: timestampsArray,
-              cumret: cumretArray,
-            },
-          };
-          console.log('printing content object...')
-          console.log(content);
-          response.render('backtestIndex', content);
-        });
-
-        // return tripleQueries.then((arrayOfResults) =>{
-        //   console.log('printing the tripleQueries...');
-        //   console.log(arrayOfResults);
-        
+          // return tripleQueries.then((arrayOfResults) =>{
+          //   console.log('printing the tripleQueries...');
+          //   console.log(arrayOfResults);
+          
+      });
     });
-  });
+  } else {
+    response.status(403).send('sorry, you need to be logged in to see this page!');
+  }
 });
 
 app.get('/backtests', (request, response) => {
@@ -567,22 +573,37 @@ app.get('/backtests', (request, response) => {
     .then((result) =>{
       console.log(result.rows)
       backtestsData = result.rows;
+      // parse the timeseries data in order to later use as arrays for chart.js
+      let labelsArray = []
+      let cumretArray = []
+
+      // converting to datettime string
+      // derived from https://coderrocketfuel.com/article/convert-a-unix-timestamp-to-a-date-in-vanilla-javascript
+      result.rows.forEach((element) =>{
+        labelsArray.push(element.id);
+        cumretArray.push(Number(element.roi));
+      })
+      console.log("printing lengths of labels and data arrays...");
+      console.log(labelsArray.length);
+      console.log(cumretArray.length);
       data = {
         allTests: backtestsData,
+        labels: labelsArray,
+        allROIs: cumretArray,
       };
       response.render('backtests', data);
     }).catch((error) => console.log(error.stack));
 });
 
-app.get('/', (request, response) => {
+app.get('/disclaimer', (request, response) => {
   console.log('homepage request');
   if (request.cookies.loggedIn === 'true') {
     // const getAllBirdNotesQuery = `
     // SELECT * FROM birds;`;
 
-  response.render('home');
+    response.render('disclaimer');
   } else {
-    response.status(403).send('sorry, please log in!');
+    response.status(403).send('sorry');
   }
 });
 
