@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <%- include('partials/head', {title: 'Signup Form'}); -%>
+    <%- include('partials/head', {title: 'Login Error: Already Logged In'}); -%>
   </head>
   <body>
     <%- include('partials/header'); -%>
@@ -66,47 +66,14 @@
       <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
       >
-        <h1 class="h2">Sign Up For A New Backtester Account</h1>
+        <h1 class="h2">You're Already Logged In!</h1>
       </div>
       <div class="container" id="form-container" style="max-width: 600px">
-        <form action="/signup" method="POST">
-          <div class="col">
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input
-                type="text"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder="test@gmail.com"
-                required
-              />
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input
-                type="text"
-                class="form-control"
-                id="password"
-                name="password"
-                placeholder="abc123"
-                required
-              />
-            </div>
-          </div>
-          <br />
-          <div class="col text-center">
-            <input
-              class="btn btn-primary btn-lg text-center"
-              id="submit-button"
-              type="submit"
-              value="Register"
-            />
-          </div>
-          <br />
-        </form>
+        <br />
+        <div class="col text-center">
+          <a href="/signup"> Want to create another account? Sign Up Here </a>
+        </div>
+        <br />
       </div>
     </main>
 

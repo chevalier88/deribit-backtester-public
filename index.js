@@ -66,7 +66,7 @@ app.get('/signup', (request, response) => {
       return;
     }
     console.log(result.rows[0]);
-    response.render('signupFormDraft');
+    response.render('signupForm');
   };
 
   // Query using pg.Pool instead of pg.Client
@@ -104,19 +104,21 @@ app.post('/signup', (request, response) => {
 
 app.get('/login', (request, response) => {
   console.log('signup form GET request came in');
-
-  const getSignupFormQuery = (error, result) => {
-    if (error) {
-      console.log('Error executing query', error.stack);
-      response.status(503).send(result.rows);
-      return;
-    }
-    console.log(result.rows[0]);
-    response.render('login');
-  };
-
+  if (request.cookies.loggedIn === 'true') {
+    response.render('loggedInError');
+  } else {
+    const getSignupFormQuery = (error, result) => {
+      if (error) {
+        console.log('Error executing query', error.stack);
+        response.status(503).send(result.rows);
+        return;
+      }
+      console.log(result.rows[0]);
+      response.render('login');
+    };
   // Query using pg.Pool instead of pg.Client
   pool.query('SELECT * FROM users', getSignupFormQuery);
+  }
 });
 
 app.post('/login', (request, response) => {
@@ -136,7 +138,7 @@ app.post('/login', (request, response) => {
       // the error for password and user are the same.
       // don't tell the user which error they got for security reasons, otherwise
       // people can guess if a person is a user of a given service.
-      response.status(403).send('sorry!');
+      response.status(403).send('Sorry! No account was found with this user info.');
       return;
     }
 
@@ -163,9 +165,13 @@ app.get('/', (request, response) => {
 app.get('/logout', (request, response) => {
   console.log('logging out');
   console.log(request);
-  response.clearCookie('loggedIn');
-  response.clearCookie('userId');
-  response.redirect('/login');
+  if (request.cookies.loggedIn === 'true') {
+    response.clearCookie('loggedIn');
+    response.clearCookie('userId');
+    response.render('logout');
+  } else {
+    response.render('logoutFail');
+  }
 });
 
 app.get('/backtest', (request, response) => {
@@ -187,10 +193,10 @@ app.get('/backtest', (request, response) => {
           timeframes: timeframesData,
           instruments: result2.rows,
         };
-        response.render('backtestFormDraft', data);
+        response.render('backtestForm', data);
       }).catch((error) => console.log(error.stack));
   } else {
-    response.status(403).send('sorry, you have to be logged in to see this!');
+    response.render('logoutFail');
   } 
 });
 
@@ -553,7 +559,7 @@ app.get('/backtest/:id', (request, response) => {
       });
     });
   } else {
-    response.status(403).send('sorry, you need to be logged in to see this page!');
+    response.render('logoutFail');
   }
 });
 
@@ -590,7 +596,7 @@ app.get('/backtests', (request, response) => {
         response.render('backtests', data);
       }).catch((error) => console.log(error.stack));
   } else {
-    response.status(403).send('sorry, you have to be logged in to see this!');
+    response.render('logoutFail');
   };
 });
 
