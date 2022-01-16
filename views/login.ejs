@@ -62,59 +62,49 @@
         </nav>
       </div>
     </div>
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <main class="form-signin col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
       >
-        <h1 class="h2">Login</h1>
+        <h1 class="h2">Please Sign In</h1>
       </div>
       <div class="container" id="form-container" style="max-width: 600px">
         <form action="/login" method="POST">
-          <div class="col">
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input
-                type="text"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder="birdy_mcbirdson@gmail.com"
-                required
-              />
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input
-                type="text"
-                class="form-control"
-                id="password"
-                name="password"
-                placeholder="password123_lol"
-                required
-              />
-            </div>
-          </div>
-          <br />
-          <div class="col text-center">
+          <div class="form-floating">
             <input
-              class="btn btn-primary btn-lg text-center"
-              id="submit-button"
-              type="submit"
-              value="Login"
+              type="email"
+              class="form-control"
+              id="floatingInput"
+              name="email"
+              placeholder="name@example.com"
             />
+            <label for="floatingInput">Email address</label>
+          </div>
+          <div class="form-floating">
+            <input
+              type="password"
+              class="form-control"
+              id="floatingPassword"
+              name="password"
+              placeholder="Password"
+            />
+            <label for="floatingPassword">Password</label>
+          </div>
+
+          <div class="checkbox mb-3">
+            <label>
+              <input type="checkbox" value="remember-me" /> Remember me
+            </label>
+          </div>
+          <button class="w-100 btn btn-lg btn-primary" type="submit">
+            Sign in
+          </button>
+          <div class="col text-center">
+            <a href="/signup"> Don't have an account? Sign Up Here </a>
           </div>
         </form>
-        <br />
-        <div class="col text-center">
-          <a href="/signup"> Don't have an account? Sign Up Here </a>
-        </div>
-        <div id="div2"></div>
-        <br />
       </div>
     </main>
-
     <%- include('partials/footer-no-chart'); -%>
   </body>
 </html>

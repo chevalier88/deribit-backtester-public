@@ -67,7 +67,7 @@ app.get('/signup', (request, response) => {
       return;
     }
     console.log(result.rows[0]);
-    response.render('signupForm');
+    response.render('signup');
   };
 
   // Query using pg.Pool instead of pg.Client
