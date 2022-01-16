@@ -574,6 +574,18 @@ app.get('/backtests', (request, response) => {
     }).catch((error) => console.log(error.stack));
 });
 
+app.get('/', (request, response) => {
+  console.log('homepage request');
+  if (request.cookies.loggedIn === 'true') {
+    // const getAllBirdNotesQuery = `
+    // SELECT * FROM birds;`;
+
+  response.render('home');
+  } else {
+    response.status(403).send('sorry, please log in!');
+  }
+});
+
 app.listen(PORT);
 
 console.log(`listening on port ${PORT}`);

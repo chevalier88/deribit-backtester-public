@@ -9,7 +9,7 @@
       content="Mark Otto, Jacob Thornton, and Bootstrap contributors"
     />
     <meta name="generator" content="Hugo 0.88.1" />
-    <title>Backtest Results: ID No. <%= mainResult.id %></title>
+    <title>All Backtest Results, by ROI</title>
 
     <link
       rel="canonical"
@@ -118,13 +118,9 @@
           <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3"
           >
-            <h1 class="h2">Backtest ID: <%= mainResult.id %></h1>
+            <h1 class="h2">All Backtest Results, by ROI</h1>
           </div>
-          <div
-            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-          >
-            <h1 class="h2">ROI: <%= mainResult.roi%></h1>
-          </div>
+
           <canvas
             class="my-4 w-100"
             id="myChart"
@@ -132,59 +128,29 @@
             height="380"
           ></canvas>
 
-          <h2>
-            <%= mainResult.frontLegKey%>/ <%= mainResult.midLegKey%>/ <%=
-            mainResult.backLegKey%> <%= mainResult.timeframe%> Timeframe
-            Butterfly
-          </h2>
+          <h2>Table of Backtests</h2>
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th scope="col-md-3 col-sm-3">Backtest Run Timestamp</th>
-                  <th scope="col-md-3 col-sm-3">Backtest Dataset Length</th>
-                  <th scope="col-md-3 col-sm-3">
-                    Timeframe (in mins unless 1D)
-                  </th>
+                  <th scope="col-md-3 col-sm-3">#</th>
+                  <th scope="col-md-3 col-sm-3">Creation Timestamp</th>
+                  <th scope="col-md-3 col-sm-3">ROI</th>
+                  <th scope="col-md-3 col-sm-3">Dataset Length</th>
+                  <th scope="col-md-3 col-sm-3">View/Edit</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><%= mainResult.created_timestamp%></td>
-                  <td><%= mainResult.length%></td>
-                  <td><%= mainResult.timeframe%></td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col-md-3 col-sm-3">Front Vector</th>
-                  <th scope="col-md-3 col-sm-3">Middle Vector</th>
-                  <th scope="col-md-3 col-sm-3">Back Vector</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><%= mainResult.front_vector%></td>
-                  <td><%= mainResult.mid_vector%></td>
-                  <td><%= mainResult.back_vector%></td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col-md-3 col-sm-3">ROI (in decimals)</th>
-                  <th scope="col-md-3 col-sm-3">Starting Balance ($)</th>
-                  <th scope="col-md-3 col-sm-3">Ending Balance ($)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><%= mainResult.decimal_roi%></td>
-                  <td><%= mainResult.starting_balance%></td>
-                  <td><%= mainResult.ending_balance%></td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>
+                    <a class="nav-link" href="/backtest/16">
+                      <span data-feather="edit"></span>
+                    </a>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -216,14 +182,22 @@
         var ctx = document.getElementById("myChart");
         // eslint-disable-next-line no-unused-vars
         var myChart = new Chart(ctx, {
-          type: "line",
+          type: "bar",
           data: {
-            labels: <%- JSON.stringify(mainResult.timestamps); %>,
+            labels: [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ],
             datasets: [
               {
-                data: <%- JSON.stringify(mainResult.cumret); %>,
+                data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
                 lineTension: 0,
-                backgroundColor: "transparent",
+                backgroundColor: "#007bff",
                 borderColor: "#007bff",
                 borderWidth: 4,
                 pointBackgroundColor: "#007bff",
