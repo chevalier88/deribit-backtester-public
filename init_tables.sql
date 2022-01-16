@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS "instruments" (
 CREATE TABLE IF NOT EXISTS "backtests_instruments" (
   "id" SERIAL PRIMARY KEY,
   "backtest_id" INTEGER,
-  "instrument_id" INTEGER
+  "instrument_id" INTEGER,
+  "leg" TEXT
 );
 
 CREATE TABLE IF NOT EXISTS "timeframes" (

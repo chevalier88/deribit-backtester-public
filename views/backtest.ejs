@@ -70,8 +70,8 @@
                 <label for="timeframes_id">Front Leg: </label>
                 <select
                   class="form-control"
-                  name="instruments_id"
-                  id="instruments_id"
+                  name="front_leg_id"
+                  id="front_leg_id"
                 >
                   <% instruments.forEach((type) => { %>
                   <option value="<%= type.id %>"><%= type.name %></option>
@@ -84,11 +84,7 @@
             <div class="col">
               <div class="col justify-content-start">
                 <label for="timeframes_id">Middle Leg: </label>
-                <select
-                  class="form-control"
-                  name="instruments_id"
-                  id="instruments_id"
-                >
+                <select class="form-control" name="mid_leg_id" id="mid_leg_id">
                   <% instruments.forEach((type) => { %>
                   <option value="<%= type.id %>"><%= type.name %></option>
                   <% }) %>
@@ -102,8 +98,8 @@
                 <label for="timeframes_id">Back Leg: </label>
                 <select
                   class="form-control"
-                  name="instruments_id"
-                  id="instruments_id"
+                  name="back_leg_id"
+                  id="back_leg_id"
                 >
                   <% instruments.forEach((type) => { %>
                   <option value="<%= type.id %>"><%= type.name %></option>
@@ -114,235 +110,6 @@
           </div>
         </div>
 
-        <!-- <p>Instruments (pick 3):</p>
-        <div class="form-group" style="max-width: 600px">
-          <div class="row">
-            <div class="col-sm-3">
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-30DEC22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-30DEC22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-25MAR22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-25MAR22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-25FEB22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-25FEB22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-28JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-28JAN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-24JUN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-24JUN22
-                </label>
-              </div>
-            </div>
-            <div class="col-sm-3">
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-21JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-21JAN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-30SEP22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-30SEP22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-PERPETUAL"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-PERP
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="BTC-14JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  BTC-14JAN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-28JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-28JAN22
-                </label>
-              </div>
-            </div>
-            <div class="col-sm-3">
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-24JUN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-24JUN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-30DEC22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-30DEC22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-25FEB22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-25FEB22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-21JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-21JAN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-25MAR22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-25MAR22
-                </label>
-              </div>
-            </div>
-            <div class="col-sm-3">
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-30SEP22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-30SEP22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-14JAN22"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-14JAN22
-                </label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  name="instruments"
-                  value="ETH-PERPETUAL"
-                  id="instruments"
-                />
-                <label class="form-check-label" for="instruments">
-                  ETH-PERP
-                </label>
-              </div>
-            </div>
-          </div>
-        </div> -->
         <br />
         <div class="col text-center">
           <input

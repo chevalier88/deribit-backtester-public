@@ -17,7 +17,8 @@
           <p><%= mainResult.created_timestamp %></p>
         </div>
         <div class="col-sm-6 col-md-6">
-          Timeframe: <%= mainResult.timeframe%>
+          <strong>Timeframe:</strong> 
+          <p><%= mainResult.timeframe%></p>
         </div>
       </div>
 
@@ -27,22 +28,27 @@
           <p><%= mainResult.length %></p>
         </div>
         <div class="col-sm-4 col-md-4">
-          Lookback Period: <%= mainResult.lookback%>
+          <strong>Lookback Period:</strong>
+          <p><%= mainResult.lookback%></p>
         </div>
         <div class="col-sm-4 col-md-4">
-          Standard Deviation: <%= mainResult.std_dev%>
+          <strong>Standard Deviation:</strong>
+          <p><%= mainResult.std_dev%></p>
         </div>
       </div>
 
       <div class="row">
         <div class="col-sm-4 col-md-4">
-          Front Vector: <%= mainResult.front_vector %>
+          <strong>Front Vector:</strong>
+          <p><%= mainResult.front_vector %></p>
         </div>
         <div class="col-sm-4 col-md-4">
-          Middle Vector: <%= mainResult.middle_vector%>
+          <strong>Middle Vector: </strong>
+          <p><%= mainResult.mid_vector%></p>
         </div>
         <div class="col-sm-4 col-md-4">
-          Back Vector <%= mainResult.back_vector%>
+          <strong>Back Vector: </strong>
+          <p><%= mainResult.back_vector%></p>
         </div>
       </div>
     </div>

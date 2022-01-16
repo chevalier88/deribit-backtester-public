@@ -288,9 +288,9 @@ app.post('/backtest', (request, response) => {
       console.log(tfObject);
       return pool.query(
         `SELECT * FROM instruments WHERE id in 
-        (${formData.instruments_id[0]}, 
-          ${formData.instruments_id[1]}, 
-          ${formData.instruments_id[2]})`
+        (${formData.front_leg_id}, 
+          ${formData.mid_leg_id}, 
+          ${formData.back_leg_id})`
         );
     }).then((result)=> {
         frontLeg = result.rows[0].name;
@@ -368,13 +368,13 @@ app.post('/backtest', (request, response) => {
 
                   const backtestID = result.rows[0].id;
                   console.log(backtestID);
-                  console.log('checking formdata first instruments_id again...')
-                  console.log(formData.instruments_id[0])
+                  console.log('checking formdata first front_leg_id again...')
+                  console.log(formData.front_leg_id)
                   // have to use promise.all because multiple pool.query commands don't work well in for loops
                   const results = Promise.all([
-                    pool.query(`INSERT INTO backtests_instruments (backtest_id, "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[0]})`),
-                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[1]})`),
-                    pool.query(`INSERT INTO backtests_instruments ("backtest_id", "instrument_id") VALUES (${backtestID}, ${formData.instruments_id[2]})`),
+                    pool.query(`INSERT INTO backtests_instruments (backtest_id, instrument_id, leg) VALUES (${backtestID}, ${formData.front_leg_id}, 'front');`),
+                    pool.query(`INSERT INTO backtests_instruments (backtest_id, instrument_id, leg) VALUES (${backtestID}, ${formData.mid_leg_id}, 'mid');`),
+                    pool.query(`INSERT INTO backtests_instruments (backtest_id, instrument_id, leg) VALUES (${backtestID}, ${formData.back_leg_id}, 'back');`),
                   ]).then((allResults)=>{
                     console.log(allResults);
                   })
@@ -393,6 +393,7 @@ app.post('/backtest', (request, response) => {
                     console.log(cumretValues);
                     let cumretArray;
 
+                    // mapping the timeseries data into an array of [[x,y], [x1, y1]...] arrays
                     cumretArray = cumretKeys.map((x, i) => [backtestID, x, cumretValues[i]]);
 
                     console.log('printing cumretArray...')
@@ -400,7 +401,6 @@ app.post('/backtest', (request, response) => {
 
                     // derived from https://stackoverflow.com/questions/34990186/how-do-i-properly-insert-multiple-rows-into-pg-with-node-postgres
                     // requires another node module: https://www.npmjs.com/package/pg-format
-
                     pool.query(format('INSERT INTO backtest_cumret_timeseries ("backtest_id", "timestamp", "cumret") VALUES %L', cumretArray),[], (err, result)=>{
                       console.log(err);
                       console.log(result);
@@ -429,6 +429,7 @@ app.get('/backtest/:id', (request, response) => {
 
   console.log(request.params.id);
 
+  let content = {};
   // inner join to get all the deets from the 3 tables:
   // backtests, instruments, timeframes
 
@@ -443,7 +444,7 @@ app.get('/backtest/:id', (request, response) => {
 
   // get the 3 instrument legs
   const testInstrumentQuery = `
-  SELECT backtests_instruments.id, backtests_instruments.instrument_id, instruments.id, instruments.name
+  SELECT backtests_instruments.id, backtests_instruments.instrument_id, backtests_instruments.leg, instruments.id, instruments.name
   FROM backtests_instruments
   INNER JOIN instruments
   ON instruments.id = backtests_instruments.instrument_id
@@ -461,82 +462,73 @@ app.get('/backtest/:id', (request, response) => {
     .query(testTFQuery)
     .then((result) =>{
       console.log(result.rows);
-      let content = {
-        mainResult:{
-          id: result.rows[0].id,
-          roi: result.rows[0].roi,
-          length: result.rows[0].length,
-          lookback: result.rows[0].lookback,
-          std_dev: result.rows[0].std_dev,
-          front_vector: result.rows[0].front_vector,
-          mid_vector: result.rows[0].mid_vector,
-          back_vector: result.rows[0].back_vector,
-          starting_balance: result.rows[0].starting_balance,
-          ending_balance: result.rows[0].ending_balance,
-          created_timestamp: result.rows[0].created_timestamp,
-          timeframe: result.rows[0].timeframe,
-        }
-      }
-      response.render('backtestIndex', content);
-    })
 
-  
+      return fn.printLater('delaying by 1 seconds', 1000).then((successDelay)=>{
+        console.log(successDelay)
+
+        const tripleQueries = Promise.all([
+          pool.query(testTFQuery),
+          pool.query(testInstrumentQuery),
+          pool.query(testTimeseriesQuery),
+        ]).then((allResults)=>{
+          // console.log(allResults[0]);
+          const [result1, result2, result3] = allResults;
+          console.log('printing result1 rows...')
+          console.log(result1.rows);
+          console.log('printing result2 rows...')
+          console.log(result2.rows);
+          console.log('printing result2 rows...')
+          console.log(result3.rows);
+
+          //parse the legs correctly
+          let frontLegName;
+          let midLegName;
+          let backLegName;
+
+          // for loop to correctly parse leg names
+          result2.rows.forEach((element)=> {
+            if (element.leg === 'front'){
+              frontLegName = element.name;
+            } else if (element.leg === 'mid'){
+              midLegName = element.name;
+            } else if (element.leg === 'back'){
+              backLegName = element.name;
+            };
+          })
+          console.log ('printing retrieved leg names...');
+          console.log (`front: ${frontLegName}, mid: ${midLegName}, back: ${backLegName}`);
+
+          let content = {
+            mainResult:{
+              frontLegKey: frontLegName,
+              midLegKey: midLegName,
+              backLegKey: backLegName,
+              id: result1.rows[0].id,
+              roi: result1.rows[0].roi,
+              length: result1.rows[0].length,
+              lookback: result1.rows[0].lookback,
+              std_dev: result1.rows[0].std_dev,
+              front_vector: result1.rows[0].front_vector,
+              mid_vector: result1.rows[0].middle_vector,
+              back_vector: result1.rows[0].back_vector,
+              starting_balance: result1.rows[0].starting_balance,
+              ending_balance: result1.rows[0].ending_balance,
+              created_timestamp: result1.rows[0].created_timestamp,
+              timeframe: result1.rows[0].timeframe,
+            }
+          };
+          console.log('printing content object...')
+          console.log(content);
+          response.render('backtestIndex', content);
+        });
+
+        // return tripleQueries.then((arrayOfResults) =>{
+        //   console.log('printing the tripleQueries...');
+        //   console.log(arrayOfResults);
+        
+    });
+  });
 });
-
-// app.get('/', (request, response) => {
-//   console.log('indiv note request came in');
-//   if (request.cookies.loggedIn === 'true') {
-//     // const getAllBirdNotesQuery = `
-//     // SELECT * FROM birds;`;
-
-//     const getAllBirdNotesQuery = `
-//     SELECT birds.id, birds.behaviour, birds.flock_size, birds.user_id, birds.species_id, birds.date, species.name 
-//     FROM birds 
-//     INNER JOIN species 
-//     ON birds.species_id = species.id;`;
-
-//     const whenDoneWithQuery = (error, result) => {
-//       if (error) {
-//         console.log('Error executing query', error.stack);
-//         response.status(503).send(result.rows);
-//         return;
-//       }
-//       console.log(result.rows);
-//       const content = {
-//         allSightings: result.rows,
-//       };
-//       // response.send(content);
-//       response.render('allNotes', content);
-//     };
-
-//     // Query using pg.Pool instead of pg.Client
-//     pool.query(getAllBirdNotesQuery, whenDoneWithQuery);
-//   } else {
-//     response.status(403).send('sorry, please log in!');
-//   }
-// });
-
-// // 3.POCE.9: Bird watching comments
-// app.post('/note/:id/comment', (req, res) => {
-//   const { userId } = req.cookies;
-
-//   const notesId = req.params.id;
-//   console.log(notesId);
-//   const text = req.body.comment;
-//   console.log(text);
-
-//   const addCommentQuery = 'INSERT INTO comments (text, notes_id, user_id) VALUES ($1, $2, $3)';
-//   const inputData = [`'${text}'`, notesId, userId];
-
-//   pool.query(addCommentQuery, inputData, (addCommentQueryError, addCommentQueryResult) => {
-//     if (addCommentQueryError) {
-//       console.log('error', addCommentQueryError);
-//     } else {
-//       console.log('done');
-//       res.redirect(`/note/${notesId}/comments`);
-//     }
-//   });
-// });
 
 app.listen(PORT);
 
