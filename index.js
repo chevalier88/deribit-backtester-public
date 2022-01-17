@@ -276,7 +276,8 @@ app.post('/backtest', (request, response) => {
       ws.close();
     }
   };
-  // console.log(formData.timeframes_id)
+  console.log('printing timeframe id for pool query....')
+  console.log(formData.timeframes_id)
   // get the actual timeframe name based on timeframe id (one to many)
   pool
     .query(`SELECT * FROM timeframes WHERE id=${formData.timeframes_id};`)
@@ -312,18 +313,18 @@ app.post('/backtest', (request, response) => {
           console.log(frontLegMsg);
           console.log(midLegMsg);
           console.log(backLegMsg);
-          return fn.printLater('delaying by 2 seconds', 2000).then((successDelay)=>{
+          return fn.printLater('delaying by 5 seconds', 5000).then((successDelay)=>{
             console.log(successDelay);
 
             // after delay, actually send the messages 
             ws.send(JSON.stringify(frontLegMsg));
             ws.send(JSON.stringify(midLegMsg));
             ws.send(JSON.stringify(backLegMsg));       
-            return fn.printLater('delaying by 4 seconds', 4000).then((successDelay)=>{
+            return fn.printLater('delaying by 10 seconds', 10000).then((successDelay)=>{
               // after processing the messages received, send to the python script
               // parse the JSON data coming back from the python script 
               console.log(successDelay);
-              console.log(`length of triple df: ${tripleDataframeArray}`);
+              console.log(`length of triple df: ${tripleDataframeArray.length}`);
               const childPython = spawn('python', ['backtester.py', JSON.stringify(tripleDataframeArray)]);
               childPython.stdout.on('data', (data) => {
                 console.log('stdout output:\n');
