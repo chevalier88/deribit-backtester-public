@@ -76,18 +76,23 @@
           class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
         >
           <p>
+            <b>What is being backtested?</b>
+            <br />
+            <br />
             The backtester will use a modified form of
             <b>linear regression</b> to test for mean-reversion of the spread
-            between 3 cryptocurrency futures of your choosing on Deribit.<br /><br />The
-            backtester will also account for commission of ~0.05% in taker fees
-            per instrument traded (a.k.a. per "leg"). The spread is constructed
-            by transacting between all 3 legs at once, so a total fee of 0.15%
-            of portfolio value is paid for each trade direction. Note that
-            closing out the position involves another 0.15% in fees paid in the
-            opposite direction, which means fees add up to a total of 0.3% for
-            one complete round of trades. This tends to eat away over time at
-            the small profits found in mean-reverting trading strategies, with
-            <b>most strategies therefore become unprofitable.</b
+            between 3 cryptocurrency futures of your choosing on Deribit. The
+            goal is to backtest statistical arbitrage, based on a cointegrated
+            portfolio trading strategy.<br /><br />The backtester will also
+            account for commission of ~0.05% in taker fees per instrument traded
+            (a.k.a. per "leg"). The spread is constructed by transacting between
+            all 3 legs at once , so a total fee of 0.15% of portfolio value is
+            paid per trade direction. Note that closing out the position
+            involves another 0.15% in fees paid in the opposite direction, which
+            means fees add up to a total of 0.3% for one complete round of
+            trades. This tends to eat away over time at the small profits found
+            in mean-reverting trading strategies, with
+            <b>most strategies therefore becoming unprofitable.</b
             ><br /><br />Input your starting balance and pick your 3 legs below.
             Good luck!
           </p>
