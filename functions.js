@@ -1,5 +1,7 @@
 const fs = require('fs');
 const { resolve } = require('path');
+const jsSHA = require('jssha');
+const SALT = require('../config_py_files/salt.js')
 
 console.log('test')
 
@@ -37,6 +39,13 @@ const printLater = (message, delay) => new Promise((resolve, reject) => {
   }, delay);
 });
 
+const getHash = (input) => {
+  const shaObj = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
+  const unhashedStr = `${input}-${SALT}`;
+  shaObj.update(unhashedStr);
+  return shaObj.getHash('HEX');
+};
+
 module.exports = {
-  toTimestamp, chartMsg, printLater, toDatetimeShort
+  toTimestamp, chartMsg, printLater, toDatetimeShort, getHash
 };

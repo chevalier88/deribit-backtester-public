@@ -57,6 +57,20 @@ console.log('imports finished')
 //   next();
 // });
 
+// middleware to check session authentication
+const checkAuth = (request, response, next) => {
+  request.isLoggedIn = false;
+  if (request.cookies.loggedIn && request.cookies.userId) {
+    const { loggedIn, userId } = request.cookies;
+    const hashedCookie = fn.getHash(userId);
+
+    if (hashedCookie === loggedIn) {
+      request.isLoggedIn = true;
+    }
+  }
+  next();
+};
+
 app.get('/signup', (request, response) => {
   console.log('signup form GET request came in');
 
@@ -74,38 +88,59 @@ app.get('/signup', (request, response) => {
   pool.query('SELECT * FROM users', getSignupFormQuery);
 });
 
+// app.post('/signup', (request, response) => {
+//   console.log('signup form post request came in');
+//   const formData = request.body;
+//   console.log(formData);
+
+//   const { email } = formData;
+//   const { password } = formData;
+//   const cookieUserId = Number(request.cookies.userId);
+
+//   const postSignupFormQuery = `
+//   INSERT INTO users (email, password)
+//   VALUES ('${email}', '${password}');
+//   `;
+//   console.log(postSignupFormQuery);
+
 app.post('/signup', (request, response) => {
-  console.log('signup form post request came in');
-  const formData = request.body;
-  console.log(formData);
-
-  const { email } = formData;
-  const { password } = formData;
-  const cookieUserId = Number(request.cookies.userId);
-
-  const postSignupFormQuery = `
-  INSERT INTO users (email, password)
-  VALUES ('${email}', '${password}');
-  `;
-  console.log(postSignupFormQuery);
-  const postSignupFormQueryResult = (error, result) => {
-    if (error) {
-      console.log('Error executing query', error.stack);
-      response.status(503).send(result);
-      return;
-    }
-    console.log(result);
-
-    response.redirect('/login');
-  };
-
-  // Query using pg.Pool instead of pg.Client
-  pool.query(postSignupFormQuery, postSignupFormQueryResult);
+  pool
+    .query('SELECT * FROM users WHERE email=$1', [request.body.email])
+    .then((result) => {
+      if (result.rows.length > 0) {
+        response.send("this email user already exists!");
+        return;
+      }
+      const hashedPw = fn.getHash(request.body.password);
+      const values = [request.body.email, hashedPw];
+      pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', values, () => {
+        response.redirect('/login');
+      });
+    })
+    .catch((err) => {
+      console.log('Error executing query', err.stack);
+      response.status(503).send('error');
+    });
 });
 
-app.get('/login', (request, response) => {
+// app.post('/signup', (request, response) => {
+//     const hashedPw = fn.getHash(request.body.password);
+//     console.log(hashedPw);
+//     const values = [request.body.username, hashedPw];
+//     console.log('printing sign
+//     up values...')
+//     console.log(values)
+//     pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', values, () => {
+//       response.redirect('/login');
+//     }).catch((err) => {
+//       console.log('Error executing query', err.stack);
+//       response.status(503).send('error');
+//     });
+// });
+
+app.get('/login', checkAuth, (request, response) => {
   console.log('signup form GET request came in');
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     response.render('loggedInError');
   } else {
     const getSignupFormQuery = (error, result) => {
@@ -123,7 +158,7 @@ app.get('/login', (request, response) => {
 });
 
 app.post('/login', (request, response) => {
-  console.log('request came in');
+  console.log('login request came in');
 
   const values = [request.body.email];
 
@@ -145,11 +180,13 @@ app.post('/login', (request, response) => {
 
     const user = result.rows[0];
 
-    if (user.password === request.body.password) {
-      response.cookie('loggedIn', true);
+    const hashedPassword = fn.getHash(request.body.password)
+    const hashedCookieString = fn.getHash(user.id);
+
+    if (user.password === hashedPassword) {
+      response.cookie('loggedIn', hashedCookieString);
       response.cookie('userId', user.id);
       response.redirect('/');
-      // setTimeout(response.redirect('/'), 2000);
     } else {
       // password didn't match
       // the error for password and user are the same...
@@ -163,22 +200,24 @@ app.get('/', (request, response) => {
   response.render('home');
 });
 
-app.get('/logout', (request, response) => {
+app.get('/logout', checkAuth, (request, response) => {
   console.log('logging out');
   console.log(request);
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === false) {
+    console.log("you're not logged in")
+    response.render('logoutFail');
+  } else {
+    console.log("you're logged in, so we're logging you out")
     response.clearCookie('loggedIn');
     response.clearCookie('userId');
     response.render('logout');
-  } else {
-    response.render('logoutFail');
   }
 });
 
-app.get('/backtest', (request, response) => {
+app.get('/backtest', checkAuth, (request, response) => {
   console.log('backtest get form request came in!');
   console.log(`user ID now ${request.cookies.userId}`);
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     let data;
     let timeframesData;
     // Query using pg.Pool 
@@ -428,12 +467,12 @@ app.post('/backtest', (request, response) => {
 
       // prep to send websocket messages to deribit server
 
-app.get('/backtest/:id', (request, response) => {
+app.get('/backtest/:id', checkAuth, (request, response) => {
   console.log('indiv backtest request came in');
 
   console.log(request.params.id);
 
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     // const getAllBirdNotesQuery = `
     // SELECT * FROM birds;`;
     // inner join to get all the deets from the 3 tables:
@@ -564,10 +603,10 @@ app.get('/backtest/:id', (request, response) => {
   }
 });
 
-app.get('/backtests', (request, response) => {
+app.get('/backtests', checkAuth, (request, response) => {
   console.log('all backtests retrieve/get request came in!');
   console.log(`user ID now ${request.cookies.userId}`);
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     let data;
     let backtestsData;
     // Query using pg.Pool 
@@ -606,9 +645,9 @@ app.get('/disclaimer', (request, response) => {
   response.render('disclaimer');
 });
 
-app.get('/edit/:id', (request, response) => {
+app.get('/edit/:id', checkAuth, (request, response) => {
 
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     console.log(request.params.id);
     console.log('indiv backtest edit request came in');
 
@@ -633,9 +672,9 @@ app.get('/edit/:id', (request, response) => {
   }
 });
 
-app.post('/edit/:id', (request, response) => {
+app.post('/edit/:id', checkAuth, (request, response) => {
 
-  if (request.cookies.loggedIn === 'true') {
+  if (request.isLoggedIn === true) {
     console.log(request.params.id);
     console.log('indiv backtest edit request came in');
     const id = Number(request.params.id);
@@ -669,29 +708,36 @@ app.post('/edit/:id', (request, response) => {
   }
 });
 
-app.delete('/edit/:id/delete', (request, response) => {
-  const id = Number(request.params.id);
-  console.log(`id: ${id}`);
+app.delete('/edit/:id', checkAuth, (request, response) => {
+  console.log("delete request came in test again")
 
-  // have to delete the rows from 3 separate tables, in a Promise.all style thing
-  const deleteMainQuery = `DELETE FROM backtests WHERE id=${id};`
-  const deleteBridgingQuery = `DELETE FROM backtests_instruments WHERE backtest_id=${id};`
-  const deleteTimeSeriesQuery = `DELETE FROM backtest_cumret_timeseries WHERE backtest_id=${id};`
+  if (request.isLoggedIn === true) {
+    console.log("you're logged in, so we can delete stuff")
+    const id = Number(request.params.id);
+    console.log(`id: ${id}`);
 
-  const results = Promise.all([
-    pool.query(deleteMainQuery),
-    pool.query(deleteBridgingQuery),
-    pool.query(deleteTimeSeriesQuery),
-    ]).then((allResults)=>
-    {
-      console.log(allResults);
+    // have to delete the rows from 3 separate tables, in a Promise.all style thing
+    const deleteMainQuery = `DELETE FROM backtests WHERE id=${id};`
+    const deleteBridgingQuery = `DELETE FROM backtests_instruments WHERE backtest_id=${id};`
+    const deleteTimeSeriesQuery = `DELETE FROM backtest_cumret_timeseries WHERE backtest_id=${id};`
+
+    const results = Promise.all([
+      pool.query(deleteMainQuery),
+      pool.query(deleteBridgingQuery),
+      pool.query(deleteTimeSeriesQuery),
+      ]).then((allResults)=>
+      {
+        console.log(allResults);
+      });
+
+    return results.then((arrayOfResults) =>{
+      console.log('triple delete complete');
+      console.log(arrayOfResults);
+      response.redirect('/backtests');
     });
-
-  return results.then((arrayOfResults) =>{
-    console.log('triple delete complete');
-    console.log(arrayOfResults);
-    response.redirect('/backtests');
-  });
+  } else {
+    response.render('logoutFail');
+  }
 });
 
 app.listen(PORT);
