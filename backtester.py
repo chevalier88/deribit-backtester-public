@@ -9,7 +9,7 @@ import math
 from pandas.plotting import register_matplotlib_converters
 import warnings
 
-sys.path.append("../")
+sys.path.append("./")
 # sys.path.insert(1, 'users/grahamlim/Documents/Documents-iMac/my_algos/config_py_files')
 from config_py_files import johansen as joh
 # import johansen.coint_johansen 

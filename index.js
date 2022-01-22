@@ -123,21 +123,6 @@ app.post('/signup', (request, response) => {
     });
 });
 
-// app.post('/signup', (request, response) => {
-//     const hashedPw = fn.getHash(request.body.password);
-//     console.log(hashedPw);
-//     const values = [request.body.username, hashedPw];
-//     console.log('printing sign
-//     up values...')
-//     console.log(values)
-//     pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', values, () => {
-//       response.redirect('/login');
-//     }).catch((err) => {
-//       console.log('Error executing query', err.stack);
-//       response.status(503).send('error');
-//     });
-// });
-
 app.get('/login', checkAuth, (request, response) => {
   console.log('signup form GET request came in');
   if (request.isLoggedIn === true) {
